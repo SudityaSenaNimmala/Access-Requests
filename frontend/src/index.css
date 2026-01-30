@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+  background: var(--bg-gradient);
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-600;
+}
+
+/* Glass effect */
+.glass {
+  @apply bg-slate-900/60 backdrop-blur-xl border border-slate-700/50;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-gradient-to-r from-primary-400 via-accent-400 to-primary-400 bg-clip-text text-transparent;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 
+         text-white font-medium rounded-xl transition-all duration-200 
+         shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40
+         active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 
+         font-medium rounded-xl transition-all duration-200 
+         border border-slate-600 hover:border-slate-500
+         active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-success {
+  @apply px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 
+         text-white font-medium rounded-xl transition-all duration-200 
+         shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40
+         active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-danger {
+  @apply px-6 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 
+         text-white font-medium rounded-xl transition-all duration-200 
+         shadow-lg shadow-red-500/25 hover:shadow-red-500/40
+         active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Input styles */
+.input {
+  @apply w-full px-4 py-3 bg-slate-800/50 border border-slate-600 rounded-xl
+         text-slate-100 placeholder-slate-400
+         focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+         transition-all duration-200;
+}
+
+.select {
+  @apply w-full px-4 py-3 bg-slate-800/50 border border-slate-600 rounded-xl
+         text-slate-100 cursor-pointer
+         focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+         transition-all duration-200 appearance-none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.textarea {
+  @apply w-full px-4 py-3 bg-slate-800/50 border border-slate-600 rounded-xl
+         text-slate-100 placeholder-slate-400 resize-none
+         focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+         transition-all duration-200;
+}
+
+/* Card styles */
+.card {
+  @apply glass rounded-2xl p-6 shadow-xl;
+}
+
+/* Status badges */
+.badge {
+  @apply px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.badge-pending {
+  @apply bg-amber-500/20 text-amber-400 border border-amber-500/30;
+}
+
+.badge-approved {
+  @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+}
+
+.badge-executed {
+  @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
+}
+
+.badge-rejected {
+  @apply bg-red-500/20 text-red-400 border border-red-500/30;
+}
+
+.badge-failed {
+  @apply bg-orange-500/20 text-orange-400 border border-orange-500/30;
+}
+
+/* Animation delays for staggered animations */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
