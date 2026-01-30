@@ -40,6 +40,11 @@ connectDB();
 // Configure Passport
 configurePassport();
 
+// Trust proxy when behind nginx (required for secure cookies with HTTPS)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL,
@@ -49,14 +54,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Determine if we should use secure cookies (HTTPS)
+const isHttps = process.env.FRONTEND_URL?.startsWith('https');
+
 // Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  proxy: process.env.NODE_ENV === 'production',
   cookie: {
-    // Only use secure cookies when actually on HTTPS (not localhost)
-    secure: process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL?.includes('localhost'),
+    // Use secure cookies when FRONTEND_URL is HTTPS
+    secure: isHttps,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'lax',
