@@ -1,0 +1,53 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Build artifacts
+frontend/dist
+backend/dist
+
+# Environment files (will be mounted separately)
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+test
+tests
+__tests__
+coverage
+.nyc_output
+
+# Docker files (not needed in container)
+docker-compose*.yml
+Dockerfile*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+*.bak
+*.tmp
+*.temp
+

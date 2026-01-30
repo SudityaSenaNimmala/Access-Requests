@@ -1,0 +1,5 @@
+# This directory contains nginx configuration for production deployment
+# - nginx.conf: Main nginx configuration
+# - ssl/: SSL certificates (add your own)
+# - logs/: Nginx logs (auto-generated)
+

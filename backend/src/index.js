@@ -93,7 +93,12 @@ app.use('/api', (err, req, res, next) => {
 
 // Serve static files from the frontend build in production
 if (process.env.NODE_ENV === 'production') {
-  const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+  // In Docker: /app/frontend/dist (relative to /app/src is ../frontend/dist)
+  // Local production: relative path ../../frontend/dist
+  const frontendDistPath = process.env.DOCKER_ENV 
+    ? path.join(__dirname, '../frontend/dist')
+    : path.join(__dirname, '../../frontend/dist');
+  
   app.use(express.static(frontendDistPath));
   
   // Handle React routing - serve index.html for all non-API routes

@@ -8,7 +8,12 @@
     "build:frontend": "npm run build --prefix frontend",
     "build": "npm run install:all && npm run build:frontend",
     "start": "node backend/src/index.js",
-    "dev": "npm run dev --prefix backend"
+    "dev": "npm run dev --prefix backend",
+    "docker:build": "docker-compose build",
+    "docker:start": "docker-compose up -d",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f app",
+    "docker:restart": "docker-compose restart"
   },
   "engines": {
     "node": ">=18.0.0"
