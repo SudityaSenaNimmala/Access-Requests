@@ -80,33 +80,33 @@ const Dashboard = () => {
       label: 'Pending',
       value: stats.pending,
       icon: Clock,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-500/10',
-      borderColor: 'border-amber-500/30',
+      color: 'text-amber-600',
+      bgColor: 'bg-amber-50',
+      borderColor: 'border-amber-200',
     },
     {
       label: 'Executed',
       value: stats.executed,
       icon: CheckCircle,
-      color: 'text-emerald-400',
-      bgColor: 'bg-emerald-500/10',
-      borderColor: 'border-emerald-500/30',
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-50',
+      borderColor: 'border-emerald-200',
     },
     {
       label: 'Rejected',
       value: stats.rejected,
       icon: XCircle,
-      color: 'text-red-400',
-      bgColor: 'bg-red-500/10',
-      borderColor: 'border-red-500/30',
+      color: 'text-red-600',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
     },
     {
       label: 'Failed',
       value: stats.failed,
       icon: AlertCircle,
-      color: 'text-orange-400',
-      bgColor: 'bg-orange-500/10',
-      borderColor: 'border-orange-500/30',
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200',
     },
   ];
 
@@ -126,10 +126,10 @@ const Dashboard = () => {
       <div className="space-y-8 animate-fade-in">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">
+          <h1 className="text-3xl font-bold text-slate-800">
             Admin Dashboard
           </h1>
-          <p className="text-slate-400 mt-1">System overview and management</p>
+          <p className="text-slate-500 mt-1">System overview and management</p>
         </div>
 
         {/* Stats */}
@@ -144,7 +144,7 @@ const Dashboard = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-400 mb-1">{stat.label}</p>
+                    <p className="text-sm text-slate-500 mb-1">{stat.label}</p>
                     <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
                   </div>
                   <Icon className={`w-10 h-10 ${stat.color} opacity-50`} />
@@ -156,7 +156,7 @@ const Dashboard = () => {
 
         {/* Quick Links */}
         <div className="animate-slide-up delay-200">
-          <h2 className="text-xl font-semibold text-slate-200 mb-4">Quick Actions</h2>
+          <h2 className="text-xl font-semibold text-slate-800 mb-4">Quick Actions</h2>
           <div className="grid md:grid-cols-3 gap-4">
             {adminQuickLinks.map((link, index) => {
               const Icon = link.icon;
@@ -164,15 +164,15 @@ const Dashboard = () => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="card hover:border-primary-500/50 transition-all group"
+                  className="card hover:border-primary-300 transition-all group"
                   style={{ animationDelay: `${(index + 4) * 100}ms` }}
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary-500/20 flex items-center justify-center group-hover:bg-primary-500/30 transition-colors">
-                      <Icon className="w-6 h-6 text-primary-400" />
+                    <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center group-hover:bg-primary-100 transition-colors">
+                      <Icon className="w-6 h-6 text-primary-500" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-200 group-hover:text-primary-400 transition-colors">
+                      <h3 className="font-semibold text-slate-800 group-hover:text-primary-500 transition-colors">
                         {link.name}
                       </h3>
                       <p className="text-sm text-slate-500">{link.description}</p>
@@ -187,10 +187,10 @@ const Dashboard = () => {
         {/* Recent Requests */}
         <div className="animate-slide-up delay-300">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-slate-200">Recent Requests</h2>
+            <h2 className="text-xl font-semibold text-slate-800">Recent Requests</h2>
             <Link
               to="/admin/requests"
-              className="text-primary-400 hover:text-primary-300 flex items-center gap-1 text-sm"
+              className="text-primary-500 hover:text-primary-600 flex items-center gap-1 text-sm"
             >
               View all <ArrowRight className="w-4 h-4" />
             </Link>
@@ -209,8 +209,8 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="card text-center py-12">
-              <FileText className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-slate-300 mb-2">No requests yet</h3>
+              <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-700 mb-2">No requests yet</h3>
               <p className="text-slate-500">No query requests have been submitted</p>
             </div>
           )}
@@ -225,10 +225,10 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">
+          <h1 className="text-3xl font-bold text-slate-800">
             Welcome back, {user?.name?.split(' ')[0]}
           </h1>
-          <p className="text-slate-400 mt-1">Here's an overview of your query requests</p>
+          <p className="text-slate-500 mt-1">Here's an overview of your query requests</p>
         </div>
         <Link to="/developer/new-request" className="btn-primary flex items-center gap-2 w-fit">
           <Plus className="w-5 h-5" />
@@ -248,7 +248,7 @@ const Dashboard = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-400 mb-1">{stat.label}</p>
+                  <p className="text-sm text-slate-500 mb-1">{stat.label}</p>
                   <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
                 </div>
                 <Icon className={`w-10 h-10 ${stat.color} opacity-50`} />
@@ -262,10 +262,10 @@ const Dashboard = () => {
       {isTeamLead() && pendingApprovals.length > 0 && (
         <div className="animate-slide-up delay-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-slate-200">Pending Approvals</h2>
+            <h2 className="text-xl font-semibold text-slate-800">Pending Approvals</h2>
             <Link
               to="/lead/requests"
-              className="text-primary-400 hover:text-primary-300 flex items-center gap-1 text-sm"
+              className="text-primary-500 hover:text-primary-600 flex items-center gap-1 text-sm"
             >
               View all <ArrowRight className="w-4 h-4" />
             </Link>
@@ -286,10 +286,10 @@ const Dashboard = () => {
       {/* Recent Requests */}
       <div className="animate-slide-up delay-300">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-slate-200">Recent Requests</h2>
+          <h2 className="text-xl font-semibold text-slate-800">Recent Requests</h2>
           <Link
             to="/developer/requests"
-            className="text-primary-400 hover:text-primary-300 flex items-center gap-1 text-sm"
+            className="text-primary-500 hover:text-primary-600 flex items-center gap-1 text-sm"
           >
             View all <ArrowRight className="w-4 h-4" />
           </Link>
@@ -303,8 +303,8 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="card text-center py-12">
-            <FileText className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-300 mb-2">No requests yet</h3>
+            <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-700 mb-2">No requests yet</h3>
             <p className="text-slate-500 mb-6">Create your first query request to get started</p>
             <Link to="/developer/new-request" className="btn-primary inline-flex items-center gap-2">
               <Plus className="w-5 h-5" />

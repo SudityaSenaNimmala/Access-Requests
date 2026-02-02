@@ -8,10 +8,10 @@ const LoadingSpinner = ({ size = 'lg', text = 'Loading...' }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
       <div className={`${sizeClasses[size]} relative`}>
-        <div className="absolute inset-0 rounded-full border-4 border-slate-700"></div>
+        <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
         <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
       </div>
-      {text && <p className="text-slate-400 animate-pulse">{text}</p>}
+      {text && <p className="text-slate-500 animate-pulse">{text}</p>}
     </div>
   );
 };

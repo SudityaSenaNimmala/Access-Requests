@@ -93,8 +93,8 @@ const ReviewRequest = () => {
   if (!request) {
     return (
       <div className="card text-center py-16">
-        <h2 className="text-xl font-medium text-slate-300 mb-2">Request not found</h2>
-        <Link to="/lead/requests" className="text-primary-400 hover:text-primary-300">
+        <h2 className="text-xl font-medium text-slate-700 mb-2">Request not found</h2>
+        <Link to="/lead/requests" className="text-primary-500 hover:text-primary-600">
           Back to requests
         </Link>
       </div>
@@ -107,28 +107,28 @@ const ReviewRequest = () => {
       <div className="flex items-center gap-4 mb-8">
         <Link
           to="/lead/requests"
-          className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-slate-100">Review Request</h1>
+            <h1 className="text-2xl font-bold text-slate-800">Review Request</h1>
             <StatusBadge status={request.status} />
           </div>
-          <p className="text-slate-400">From {request.developerName}</p>
+          <p className="text-slate-500">From {request.developerName}</p>
         </div>
       </div>
 
       <div className="space-y-6">
         {/* Warning for write operations */}
         {isWriteOperation && request.status === 'pending' && (
-          <div className="card bg-amber-500/10 border-amber-500/30">
+          <div className="card bg-amber-50 border-amber-200">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-amber-400 mb-1">Write Operation Warning</h3>
-                <p className="text-sm text-amber-300/80">
+                <h3 className="font-semibold text-amber-700 mb-1">Write Operation Warning</h3>
+                <p className="text-sm text-amber-600">
                   This is a <strong>{request.queryType}</strong> operation that will modify data in the database.
                   Please review the query carefully before approving.
                 </p>
@@ -139,20 +139,20 @@ const ReviewRequest = () => {
 
         {/* Developer Info */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-slate-200 mb-4">Developer Information</h2>
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">Developer Information</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="flex items-center gap-3">
-              <User className="w-5 h-5 text-slate-400" />
+              <User className="w-5 h-5 text-slate-500" />
               <div>
-                <p className="text-sm text-slate-400">Name</p>
-                <p className="text-slate-200">{request.developerName}</p>
+                <p className="text-sm text-slate-500">Name</p>
+                <p className="text-slate-800">{request.developerName}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-slate-400" />
+              <Clock className="w-5 h-5 text-slate-500" />
               <div>
-                <p className="text-sm text-slate-400">Submitted</p>
-                <p className="text-slate-200">{formatDate(request.createdAt)}</p>
+                <p className="text-sm text-slate-500">Submitted</p>
+                <p className="text-slate-800">{formatDate(request.createdAt)}</p>
               </div>
             </div>
           </div>
@@ -160,42 +160,42 @@ const ReviewRequest = () => {
 
         {/* Request Details */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-slate-200 mb-4">Request Details</h2>
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">Request Details</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Database className="w-5 h-5 text-slate-400 mt-0.5" />
+                <Database className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Database</p>
-                  <p className="text-slate-200">{request.dbInstanceName}</p>
+                  <p className="text-sm text-slate-500">Database</p>
+                  <p className="text-slate-800">{request.dbInstanceName}</p>
                 </div>
               </div>
               {request.collectionName && request.collectionName !== 'unknown' && (
               <div className="flex items-start gap-3">
-                <Database className="w-5 h-5 text-slate-400 mt-0.5" />
+                <Database className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Collection</p>
-                  <p className="text-slate-200">{request.collectionName}</p>
+                  <p className="text-sm text-slate-500">Collection</p>
+                  <p className="text-slate-800">{request.collectionName}</p>
                 </div>
               </div>
             )}
             </div>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Database className="w-5 h-5 text-slate-400 mt-0.5" />
+                <Database className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Query Type</p>
-                  <p className={`text-slate-200 capitalize ${isWriteOperation ? 'text-amber-400' : ''}`}>
+                  <p className="text-sm text-slate-500">Query Type</p>
+                  <p className={`text-slate-800 capitalize ${isWriteOperation ? 'text-amber-600' : ''}`}>
                     {request.queryType}
                     {isWriteOperation && ' (Write)'}
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <MessageSquare className="w-5 h-5 text-slate-400 mt-0.5" />
+                <MessageSquare className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Reason</p>
-                  <p className="text-slate-200">{request.reason}</p>
+                  <p className="text-sm text-slate-500">Reason</p>
+                  <p className="text-slate-800">{request.reason}</p>
                 </div>
               </div>
             </div>
@@ -204,17 +204,17 @@ const ReviewRequest = () => {
 
         {/* Query */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-slate-200 mb-4">Query to Execute</h2>
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">Query to Execute</h2>
           <QueryEditor value={request.query} readOnly height="250px" language="javascript" />
         </div>
 
         {/* Action Buttons for Pending Requests */}
         {request.status === 'pending' && (
           <div className="card">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4">Review Actions</h2>
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">Review Actions</h2>
             
             <div className="mb-4">
-              <label className="block text-sm text-slate-400 mb-2">
+              <label className="block text-sm text-slate-500 mb-2">
                 Comment (optional for approval, required for rejection)
               </label>
               <textarea
@@ -254,15 +254,15 @@ const ReviewRequest = () => {
         {/* Review Comment (if already reviewed) */}
         {request.reviewComment && (
           <div className="card">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4">Review Comment</h2>
-            <p className="text-slate-300">{request.reviewComment}</p>
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">Review Comment</h2>
+            <p className="text-slate-600">{request.reviewComment}</p>
           </div>
         )}
 
         {/* Results (if executed) */}
         {(request.result || request.error) && (
           <div className="card">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">
               {request.error ? 'Execution Error' : 'Query Results'}
             </h2>
             <ResultViewer result={request.result} error={request.error} />
@@ -272,10 +272,10 @@ const ReviewRequest = () => {
 
       {/* Reject Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full animate-slide-up">
-            <h3 className="text-xl font-semibold text-slate-200 mb-4">Reject Request</h3>
-            <p className="text-slate-400 mb-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full animate-slide-up p-6">
+            <h3 className="text-xl font-semibold text-slate-800 mb-4">Reject Request</h3>
+            <p className="text-slate-500 mb-4">
               Please provide a reason for rejecting this request. This will be shared with the developer.
             </p>
             <textarea

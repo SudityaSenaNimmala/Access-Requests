@@ -15,7 +15,7 @@ const RequestCard = ({ request, showDeveloper = false, linkTo }) => {
   return (
     <Link
       to={linkTo || `/developer/requests/${request._id}`}
-      className="block bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 shadow-xl hover:border-primary-500/50 transition-all duration-300 group"
+      className="block bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-primary-300 hover:shadow-md transition-all duration-300 group"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -26,11 +26,11 @@ const RequestCard = ({ request, showDeveloper = false, linkTo }) => {
             </span>
           </div>
 
-          <h3 className="font-semibold text-slate-200 mb-2 truncate group-hover:text-primary-400 transition-colors">
+          <h3 className="font-semibold text-slate-800 mb-2 truncate group-hover:text-primary-500 transition-colors">
             {request.dbInstanceName}
           </h3>
 
-          <p className="text-sm text-slate-400 line-clamp-2 mb-4">
+          <p className="text-sm text-slate-500 line-clamp-2 mb-4">
             {request.reason}
           </p>
 
@@ -54,7 +54,7 @@ const RequestCard = ({ request, showDeveloper = false, linkTo }) => {
           </div>
         </div>
 
-        <ArrowRight className="w-5 h-5 text-slate-600 group-hover:text-primary-400 group-hover:translate-x-1 transition-all" />
+        <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
       </div>
     </Link>
   );

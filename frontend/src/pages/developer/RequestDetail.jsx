@@ -100,50 +100,50 @@ const RequestDetail = () => {
       <div className="flex items-center gap-4 mb-8">
         <Link
           to="/developer/requests"
-          className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-slate-100">{request.dbInstanceName}</h1>
+            <h1 className="text-2xl font-bold text-slate-800">{request.dbInstanceName}</h1>
             <StatusBadge status={request.status} />
           </div>
-          <p className="text-slate-400">Request ID: {request._id}</p>
+          <p className="text-slate-500">Request ID: {request._id}</p>
         </div>
       </div>
 
       <div className="space-y-6">
         {/* Status Timeline */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-slate-200 mb-4">Status</h2>
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">Status</h2>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center">
-                <Clock className="w-4 h-4 text-primary-400" />
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                <Clock className="w-4 h-4 text-primary-500" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-300">Submitted</p>
+                <p className="text-sm font-medium text-slate-700">Submitted</p>
                 <p className="text-xs text-slate-500">{formatDate(request.createdAt)}</p>
               </div>
             </div>
 
-            <div className="flex-1 h-0.5 bg-slate-700" />
+            <div className="flex-1 h-0.5 bg-slate-200" />
 
             {request.reviewedAt && (
               <>
                 <div className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    request.status === 'rejected' ? 'bg-red-500/20' : 'bg-emerald-500/20'
+                    request.status === 'rejected' ? 'bg-red-100' : 'bg-emerald-100'
                   }`}>
                     {request.status === 'rejected' ? (
-                      <XCircle className="w-4 h-4 text-red-400" />
+                      <XCircle className="w-4 h-4 text-red-500" />
                     ) : (
-                      <CheckCircle className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle className="w-4 h-4 text-emerald-500" />
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-300">
+                    <p className="text-sm font-medium text-slate-700">
                       {request.status === 'rejected' ? 'Rejected' : 'Approved'}
                     </p>
                     <p className="text-xs text-slate-500">{formatDate(request.reviewedAt)}</p>
@@ -152,19 +152,19 @@ const RequestDetail = () => {
 
                 {request.executedAt && (
                   <>
-                    <div className="flex-1 h-0.5 bg-slate-700" />
+                    <div className="flex-1 h-0.5 bg-slate-200" />
                     <div className="flex items-center gap-2">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        request.status === 'failed' ? 'bg-orange-500/20' : 'bg-emerald-500/20'
+                        request.status === 'failed' ? 'bg-orange-100' : 'bg-emerald-100'
                       }`}>
                         {request.status === 'failed' ? (
-                          <XCircle className="w-4 h-4 text-orange-400" />
+                          <XCircle className="w-4 h-4 text-orange-500" />
                         ) : (
-                          <Database className="w-4 h-4 text-emerald-400" />
+                          <Database className="w-4 h-4 text-emerald-500" />
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-slate-300">
+                        <p className="text-sm font-medium text-slate-700">
                           {request.status === 'failed' ? 'Failed' : 'Executed'}
                         </p>
                         <p className="text-xs text-slate-500">{formatDate(request.executedAt)}</p>
@@ -179,46 +179,46 @@ const RequestDetail = () => {
 
         {/* Request Details */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-slate-200 mb-4">Request Details</h2>
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">Request Details</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Database className="w-5 h-5 text-slate-400 mt-0.5" />
+                <Database className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Database</p>
-                  <p className="text-slate-200">{request.dbInstanceName}</p>
+                  <p className="text-sm text-slate-500">Database</p>
+                  <p className="text-slate-800">{request.dbInstanceName}</p>
                 </div>
               </div>
               {request.collectionName && request.collectionName !== 'unknown' && (
               <div className="flex items-start gap-3">
-                <Database className="w-5 h-5 text-slate-400 mt-0.5" />
+                <Database className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Collection</p>
-                  <p className="text-slate-200">{request.collectionName}</p>
+                  <p className="text-sm text-slate-500">Collection</p>
+                  <p className="text-slate-800">{request.collectionName}</p>
                 </div>
               </div>
             )}
               <div className="flex items-start gap-3">
-                <Database className="w-5 h-5 text-slate-400 mt-0.5" />
+                <Database className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Query Type</p>
-                  <p className="text-slate-200 capitalize">{request.queryType}</p>
+                  <p className="text-sm text-slate-500">Query Type</p>
+                  <p className="text-slate-800 capitalize">{request.queryType}</p>
                 </div>
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <User className="w-5 h-5 text-slate-400 mt-0.5" />
+                <User className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Team Lead</p>
-                  <p className="text-slate-200">{request.teamLeadName}</p>
+                  <p className="text-sm text-slate-500">Team Lead</p>
+                  <p className="text-slate-800">{request.teamLeadName}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <MessageSquare className="w-5 h-5 text-slate-400 mt-0.5" />
+                <MessageSquare className="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-slate-400">Reason</p>
-                  <p className="text-slate-200">{request.reason}</p>
+                  <p className="text-sm text-slate-500">Reason</p>
+                  <p className="text-slate-800">{request.reason}</p>
                 </div>
               </div>
             </div>
@@ -228,11 +228,11 @@ const RequestDetail = () => {
         {/* Query */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-200">Query</h2>
+            <h2 className="text-lg font-semibold text-slate-800">Query</h2>
             {request.status === 'failed' && !isEditing && (
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-300"
               >
                 <Edit3 className="w-4 h-4" />
                 Edit Query
@@ -291,15 +291,15 @@ const RequestDetail = () => {
         {/* Review Comment */}
         {request.reviewComment && (
           <div className="card">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4">Review Comment</h2>
-            <p className="text-slate-300">{request.reviewComment}</p>
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">Review Comment</h2>
+            <p className="text-slate-600">{request.reviewComment}</p>
           </div>
         )}
 
         {/* Results */}
         {(request.result || request.error) && (
           <div className="card">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">
               {request.error ? 'Error' : 'Query Results'}
             </h2>
             <ResultViewer result={request.result} error={request.error} />

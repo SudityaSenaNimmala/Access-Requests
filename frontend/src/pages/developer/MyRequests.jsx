@@ -52,13 +52,13 @@ const MyRequests = () => {
     <div className="animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">My Requests</h1>
-          <p className="text-slate-400 mt-1">View and track your query requests</p>
+          <h1 className="text-3xl font-bold text-slate-800">My Requests</h1>
+          <p className="text-slate-500 mt-1">View and track your query requests</p>
         </div>
 
         {/* Filter */}
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-slate-400" />
+          <Filter className="w-4 h-4 text-slate-500" />
           <select
             value={filter}
             onChange={(e) => {
@@ -96,7 +96,7 @@ const MyRequests = () => {
               >
                 Previous
               </button>
-              <span className="text-slate-400 px-4">
+              <span className="text-slate-500 px-4">
                 Page {pagination.page} of {pagination.pages}
               </span>
               <button
@@ -111,8 +111,8 @@ const MyRequests = () => {
         </>
       ) : (
         <div className="card text-center py-16">
-          <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-slate-300 mb-2">No requests found</h3>
+          <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-xl font-medium text-slate-700 mb-2">No requests found</h3>
           <p className="text-slate-500">
             {filter === 'all'
               ? "You haven't submitted any requests yet"

@@ -61,13 +61,13 @@ const TeamRequests = () => {
     <div className="animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Team Requests</h1>
-          <p className="text-slate-400 mt-1">Review and approve query requests from your team</p>
+          <h1 className="text-3xl font-bold text-slate-800">Team Requests</h1>
+          <p className="text-slate-500 mt-1">Review and approve query requests from your team</p>
         </div>
 
         {/* Filter */}
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-slate-400" />
+          <Filter className="w-4 h-4 text-slate-500" />
           <select
             value={filter}
             onChange={(e) => {
@@ -94,7 +94,7 @@ const TeamRequests = () => {
               <Link
                 key={request._id}
                 to={`/lead/requests/${request._id}`}
-                className="card block hover:border-primary-500/50 transition-all duration-300 group animate-slide-up"
+                className="card block hover:border-primary-300 transition-all duration-300 group animate-slide-up"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -105,17 +105,17 @@ const TeamRequests = () => {
                         {request.queryType}
                       </span>
                       {request.status === 'pending' && (
-                        <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full animate-pulse-soft">
+                        <span className="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full animate-pulse-soft">
                           Needs Review
                         </span>
                       )}
                     </div>
 
-                    <h3 className="font-semibold text-slate-200 mb-2 group-hover:text-primary-400 transition-colors">
+                    <h3 className="font-semibold text-slate-800 mb-2 group-hover:text-primary-500 transition-colors">
                       {request.dbInstanceName} / {request.collectionName}
                     </h3>
 
-                    <p className="text-sm text-slate-400 line-clamp-2 mb-4">
+                    <p className="text-sm text-slate-500 line-clamp-2 mb-4">
                       {request.reason}
                     </p>
 
@@ -137,7 +137,7 @@ const TeamRequests = () => {
                     </div>
                   </div>
 
-                  <ArrowRight className="w-5 h-5 text-slate-600 group-hover:text-primary-400 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all flex-shrink-0" />
                 </div>
               </Link>
             ))}
@@ -153,7 +153,7 @@ const TeamRequests = () => {
               >
                 Previous
               </button>
-              <span className="text-slate-400 px-4">
+              <span className="text-slate-500 px-4">
                 Page {pagination.page} of {pagination.pages}
               </span>
               <button
@@ -168,8 +168,8 @@ const TeamRequests = () => {
         </>
       ) : (
         <div className="card text-center py-16">
-          <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-slate-300 mb-2">No requests found</h3>
+          <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-xl font-medium text-slate-700 mb-2">No requests found</h3>
           <p className="text-slate-500">
             {filter === 'pending'
               ? 'No pending requests to review'

@@ -70,7 +70,7 @@ MICROSOFT_CALLBACK_URL=http://localhost:5000/api/auth/microsoft/callback
 MICROSOFT_TENANT_ID=your-tenant-id-or-common
 
 # Frontend URL
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:5000
 
 # Email (SMTP)
 SMTP_HOST=smtp.office365.com
@@ -97,19 +97,19 @@ ENCRYPTION_KEY=your-32-character-encryption-key!
 10. Copy the secret value to `MICROSOFT_CLIENT_SECRET`
 11. Go to **API permissions** > Add `User.Read` permission (should be added by default)
 
-### 4. Run the Application
+### 4. Build Frontend & Run
 
 ```bash
-# Terminal 1 - Backend
-cd backend
-npm run dev
-
-# Terminal 2 - Frontend
+# Build frontend
 cd frontend
-npm run dev
+npm run build
+
+# Start the server (serves both backend API and frontend)
+cd ..
+npm start
 ```
 
-Visit `http://localhost:5173`
+Visit `http://localhost:5000`
 
 ## Usage
 

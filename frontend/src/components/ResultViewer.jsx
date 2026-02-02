@@ -16,17 +16,17 @@ const ResultViewer = ({ result, error }) => {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+      <div className="rounded-xl border border-red-200 bg-red-50 p-4">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-red-400 font-medium">Error</h4>
+          <h4 className="text-red-600 font-medium">Error</h4>
           <button
             onClick={copyToClipboard}
-            className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+            className="p-2 text-slate-500 hover:text-slate-700 transition-colors"
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>
         </div>
-        <pre className="text-red-300 text-sm font-mono whitespace-pre-wrap break-words">
+        <pre className="text-red-700 text-sm font-mono whitespace-pre-wrap break-words">
           {error}
         </pre>
       </div>
@@ -37,11 +37,11 @@ const ResultViewer = ({ result, error }) => {
   const itemCount = isArray ? result.length : 1;
 
   return (
-    <div className="rounded-xl border border-slate-600 bg-slate-800/50 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
+    <div className="rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-2 text-slate-300 hover:text-slate-100 transition-colors"
+          className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors"
         >
           {expanded ? (
             <ChevronDown className="w-4 h-4" />
@@ -49,22 +49,22 @@ const ResultViewer = ({ result, error }) => {
             <ChevronRight className="w-4 h-4" />
           )}
           <span className="font-medium">Results</span>
-          <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded-full">
+          <span className="text-xs text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">
             {itemCount} {itemCount === 1 ? 'item' : 'items'}
           </span>
         </button>
         <button
           onClick={copyToClipboard}
-          className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+          className="p-2 text-slate-500 hover:text-slate-700 transition-colors"
           title="Copy to clipboard"
         >
-          {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+          {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
         </button>
       </div>
 
       {expanded && (
         <div className="p-4 max-h-[500px] overflow-auto">
-          <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap break-words">
+          <pre className="text-sm font-mono text-slate-700 whitespace-pre-wrap break-words">
             {JSON.stringify(result, null, 2)}
           </pre>
         </div>

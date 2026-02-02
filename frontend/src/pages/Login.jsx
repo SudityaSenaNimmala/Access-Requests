@@ -44,21 +44,21 @@ const Login = () => {
   ];
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-white">
       {/* Left side - Features */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-16 py-12">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-16 py-12 bg-slate-50">
         <div className="max-w-lg">
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center shadow-lg shadow-primary-500/30">
+            <div className="w-14 h-14 rounded-2xl bg-primary-500 flex items-center justify-center shadow-lg shadow-primary-500/30">
               <Database className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold gradient-text">DB Access Tool</h1>
-              <p className="text-slate-400">Secure Query Management</p>
+              <h1 className="text-3xl font-bold text-primary-500">DB Access Tool</h1>
+              <p className="text-slate-500">Secure Query Management</p>
             </div>
           </div>
 
-          <p className="text-xl text-slate-300 mb-12 leading-relaxed">
+          <p className="text-xl text-slate-600 mb-12 leading-relaxed">
             Request, approve, and execute database queries with a streamlined approval workflow.
             No more waiting for direct database access.
           </p>
@@ -72,12 +72,12 @@ const Login = () => {
                   className="flex items-start gap-4 animate-slide-up"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-5 h-5 text-primary-400" />
+                  <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <Icon className="w-5 h-5 text-primary-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-200 mb-1">{feature.title}</h3>
-                    <p className="text-sm text-slate-400">{feature.description}</p>
+                    <h3 className="font-semibold text-slate-800 mb-1">{feature.title}</h3>
+                    <p className="text-sm text-slate-500">{feature.description}</p>
                   </div>
                 </div>
               );
@@ -92,22 +92,22 @@ const Login = () => {
           <div className="card animate-fade-in">
             {/* Mobile logo */}
             <div className="lg:hidden flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-primary-500 flex items-center justify-center">
                 <Database className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold gradient-text">DB Access Tool</h1>
-                <p className="text-xs text-slate-400">Secure Query Management</p>
+                <h1 className="text-xl font-bold text-primary-500">DB Access Tool</h1>
+                <p className="text-xs text-slate-500">Secure Query Management</p>
               </div>
             </div>
 
-            <h2 className="text-2xl font-bold text-slate-100 mb-2">Welcome back</h2>
-            <p className="text-slate-400 mb-8">Sign in with your Microsoft account to continue</p>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Welcome back</h2>
+            <p className="text-slate-500 mb-8">Sign in with your Microsoft account to continue</p>
 
             <button
               onClick={login}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#2f2f2f] hover:bg-[#3b3b3b] text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 border border-slate-600"
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
             >
               <svg className="w-5 h-5" viewBox="0 0 21 21">
                 <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
@@ -118,12 +118,12 @@ const Login = () => {
               Sign in with Microsoft
             </button>
 
-            <p className="text-xs text-slate-500 text-center mt-6">
+            <p className="text-xs text-slate-400 text-center mt-6">
               By signing in, you agree to our terms of service and privacy policy.
             </p>
           </div>
 
-          <p className="text-center text-slate-500 text-sm mt-8">
+          <p className="text-center text-slate-400 text-sm mt-8">
             Need help? Contact your system administrator.
           </p>
         </div>

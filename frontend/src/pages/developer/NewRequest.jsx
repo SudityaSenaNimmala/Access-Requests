@@ -72,34 +72,34 @@ const NewRequest = () => {
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-100">New Query Request</h1>
-        <p className="text-slate-400 mt-1">Submit a query for team lead approval</p>
+        <h1 className="text-3xl font-bold text-slate-800">New Query Request</h1>
+        <p className="text-slate-500 mt-1">Submit a query for team lead approval</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Developer Info */}
         <div className="card">
           <div className="flex items-center gap-3 mb-4">
-            <User className="w-5 h-5 text-primary-400" />
-            <h2 className="text-lg font-semibold text-slate-200">Developer Information</h2>
+            <User className="w-5 h-5 text-primary-500" />
+            <h2 className="text-lg font-semibold text-slate-800">Developer Information</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-slate-400 mb-2">Name</label>
+              <label className="block text-sm text-slate-500 mb-2">Name</label>
               <input
                 type="text"
                 value={user?.name || ''}
                 disabled
-                className="input bg-slate-800/80 cursor-not-allowed"
+                className="input bg-slate-50 cursor-not-allowed"
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-2">Email</label>
+              <label className="block text-sm text-slate-500 mb-2">Email</label>
               <input
                 type="text"
                 value={user?.email || ''}
                 disabled
-                className="input bg-slate-800/80 cursor-not-allowed"
+                className="input bg-slate-50 cursor-not-allowed"
               />
             </div>
           </div>
@@ -108,12 +108,12 @@ const NewRequest = () => {
         {/* Database Selection */}
         <div className="card">
           <div className="flex items-center gap-3 mb-4">
-            <Database className="w-5 h-5 text-primary-400" />
-            <h2 className="text-lg font-semibold text-slate-200">Database Instance</h2>
+            <Database className="w-5 h-5 text-primary-500" />
+            <h2 className="text-lg font-semibold text-slate-800">Database Instance</h2>
           </div>
           <div>
-            <label className="block text-sm text-slate-400 mb-2">
-              Select Database <span className="text-red-400">*</span>
+            <label className="block text-sm text-slate-500 mb-2">
+              Select Database <span className="text-red-500">*</span>
             </label>
             <select
               value={formData.dbInstanceId}
@@ -129,7 +129,7 @@ const NewRequest = () => {
               ))}
             </select>
             {dbInstances.length === 0 && (
-              <p className="text-xs text-amber-400 mt-2">
+              <p className="text-xs text-amber-600 mt-2">
                 No database instances available. Please contact an admin to add one.
               </p>
             )}
@@ -139,13 +139,13 @@ const NewRequest = () => {
         {/* Query Details */}
         <div className="card">
           <div className="flex items-center gap-3 mb-4">
-            <Code className="w-5 h-5 text-primary-400" />
-            <h2 className="text-lg font-semibold text-slate-200">MongoDB Query</h2>
+            <Code className="w-5 h-5 text-primary-500" />
+            <h2 className="text-lg font-semibold text-slate-800">MongoDB Query</h2>
           </div>
 
           <div>
-            <label className="block text-sm text-slate-400 mb-2">
-              Query <span className="text-red-400">*</span>
+            <label className="block text-sm text-slate-500 mb-2">
+              Query <span className="text-red-500">*</span>
             </label>
             <QueryEditor
               value={formData.query}
@@ -153,15 +153,15 @@ const NewRequest = () => {
               height="300px"
               language="javascript"
             />
-            <div className="mt-3 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-              <p className="text-xs text-slate-400 mb-2">
-                <strong className="text-slate-300">Write your query as you would in MongoDB shell:</strong>
+            <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <p className="text-xs text-slate-500 mb-2">
+                <strong className="text-slate-700">Write your query as you would in MongoDB shell:</strong>
               </p>
               <ul className="text-xs text-slate-500 space-y-1">
-                <li>• <code className="text-primary-400">db.users.find({'{ status: "active" }'})</code></li>
-                <li>• <code className="text-primary-400">db.orders.aggregate([{'{ $match: {} }'}])</code></li>
-                <li>• <code className="text-primary-400">db.products.countDocuments()</code></li>
-                <li>• <code className="text-primary-400">db.logs.deleteMany({'{ createdAt: { $lt: new Date("2024-01-01") } }'})</code></li>
+                <li>• <code className="text-primary-500">db.users.find({'{ status: "active" }'})</code></li>
+                <li>• <code className="text-primary-500">db.orders.aggregate([{'{ $match: {} }'}])</code></li>
+                <li>• <code className="text-primary-500">db.products.countDocuments()</code></li>
+                <li>• <code className="text-primary-500">db.logs.deleteMany({'{ createdAt: { $lt: new Date("2024-01-01") } }'})</code></li>
               </ul>
             </div>
           </div>
@@ -170,13 +170,13 @@ const NewRequest = () => {
         {/* Reason & Approval */}
         <div className="card">
           <div className="flex items-center gap-3 mb-4">
-            <FileText className="w-5 h-5 text-primary-400" />
-            <h2 className="text-lg font-semibold text-slate-200">Request Details</h2>
+            <FileText className="w-5 h-5 text-primary-500" />
+            <h2 className="text-lg font-semibold text-slate-800">Request Details</h2>
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm text-slate-400 mb-2">
-              Reason for Access <span className="text-red-400">*</span>
+            <label className="block text-sm text-slate-500 mb-2">
+              Reason for Access <span className="text-red-500">*</span>
             </label>
             <textarea
               value={formData.reason}
@@ -189,8 +189,8 @@ const NewRequest = () => {
           </div>
 
           <div>
-            <label className="block text-sm text-slate-400 mb-2">
-              Team Lead <span className="text-red-400">*</span>
+            <label className="block text-sm text-slate-500 mb-2">
+              Team Lead <span className="text-red-500">*</span>
             </label>
             <select
               value={formData.teamLeadId}
