@@ -1,6 +1,15 @@
 import mongoose from 'mongoose';
 import DBInstance from '../models/DBInstance.js';
 
+// ONLY these operations are read-only and safe for auto-execution
+// Everything else requires approval (safe default)
+const READ_ONLY_OPERATIONS = [
+  'find', 'findone',
+  'count', 'countdocuments', 'estimateddocumentcount',
+  'distinct',
+  'aggregate'
+];
+
 class QueryExecutor {
   constructor() {
     this.connections = new Map();
@@ -236,153 +245,53 @@ class QueryExecutor {
     // Parse chained methods from full query (e.g., .limit(10).sort({_id:-1}))
     const chainedMethods = this.parseChainedMethods(fullQuery, method);
 
-    switch (method) {
-      case 'find': {
+    // Dynamic method execution - call the method directly on collection
+    if (typeof collection[method] !== 'function') {
+      // Handle deprecated count() -> countDocuments()
+      if (method === 'count') {
         const filter = args[0] || {};
-        const projection = args[1] || {};
-        let cursor = collection.find(filter);
-        
-        if (Object.keys(projection).length > 0) {
-          cursor = cursor.project(projection);
+        return await collection.countDocuments(filter);
+      }
+      throw new Error(`Unsupported method: ${method}`);
+    }
+
+    // Execute the primary method
+    let result = collection[method](...args);
+
+    // Check if result is a cursor (has toArray method) or a promise
+    if (result && typeof result.toArray === 'function') {
+      // It's a cursor - apply chained methods
+      for (const chain of chainedMethods) {
+        if (typeof result[chain.method] === 'function') {
+          result = result[chain.method](...chain.args);
         }
-        
-        // Apply chained methods
-        for (const chain of chainedMethods) {
-          if (chain.method === 'limit' && chain.args[0]) {
-            cursor = cursor.limit(chain.args[0]);
-          } else if (chain.method === 'skip' && chain.args[0]) {
-            cursor = cursor.skip(chain.args[0]);
-          } else if (chain.method === 'sort' && chain.args[0]) {
-            cursor = cursor.sort(chain.args[0]);
-          } else if (chain.method === 'project' && chain.args[0]) {
-            cursor = cursor.project(chain.args[0]);
+      }
+      
+      // For find cursors without explicit limit, add default limit
+      if (method === 'find' && !chainedMethods.some(c => c.method === 'limit')) {
+        result = result.limit(100);
+      }
+      
+      // Convert cursor to array
+      return await result.toArray();
+    } else if (result && typeof result.then === 'function') {
+      // It's a promise - await it
+      result = await result;
+      
+      // Apply post-processing for chained methods on the result
+      for (const chain of chainedMethods) {
+        if (result && typeof result[chain.method] === 'function') {
+          result = result[chain.method](...chain.args);
+          if (result && typeof result.then === 'function') {
+            result = await result;
           }
         }
-        
-        // Default limit if not specified
-        if (!chainedMethods.some(c => c.method === 'limit')) {
-          cursor = cursor.limit(100);
-        }
-        
-        return await cursor.toArray();
       }
-
-      case 'findOne': {
-        const filter = args[0] || {};
-        const options = args[1] || {};
-        return await collection.findOne(filter, options);
-      }
-
-      case 'aggregate': {
-        const pipeline = args[0] || [];
-        const options = args[1] || {};
-        return await collection.aggregate(pipeline, options).toArray();
-      }
-
-      case 'countDocuments': {
-        const filter = args[0] || {};
-        const options = args[1] || {};
-        return await collection.countDocuments(filter, options);
-      }
-
-      case 'estimatedDocumentCount': {
-        return await collection.estimatedDocumentCount();
-      }
-
-      case 'distinct': {
-        const field = args[0];
-        const filter = args[1] || {};
-        return await collection.distinct(field, filter);
-      }
-
-      case 'insertOne': {
-        const doc = args[0];
-        if (!doc) throw new Error('Document required for insertOne');
-        return await collection.insertOne(doc);
-      }
-
-      case 'insertMany': {
-        const docs = args[0];
-        if (!docs || !Array.isArray(docs)) throw new Error('Array of documents required for insertMany');
-        return await collection.insertMany(docs);
-      }
-
-      case 'updateOne': {
-        const filter = args[0] || {};
-        const update = args[1];
-        const options = args[2] || {};
-        if (!update) throw new Error('Update document required for updateOne');
-        return await collection.updateOne(filter, update, options);
-      }
-
-      case 'updateMany': {
-        const filter = args[0] || {};
-        const update = args[1];
-        const options = args[2] || {};
-        if (!update) throw new Error('Update document required for updateMany');
-        return await collection.updateMany(filter, update, options);
-      }
-
-      case 'replaceOne': {
-        const filter = args[0] || {};
-        const replacement = args[1];
-        const options = args[2] || {};
-        if (!replacement) throw new Error('Replacement document required for replaceOne');
-        return await collection.replaceOne(filter, replacement, options);
-      }
-
-      case 'deleteOne': {
-        const filter = args[0] || {};
-        return await collection.deleteOne(filter);
-      }
-
-      case 'deleteMany': {
-        const filter = args[0] || {};
-        return await collection.deleteMany(filter);
-      }
-
-      case 'findOneAndUpdate': {
-        const filter = args[0] || {};
-        const update = args[1];
-        const options = args[2] || {};
-        return await collection.findOneAndUpdate(filter, update, options);
-      }
-
-      case 'findOneAndDelete': {
-        const filter = args[0] || {};
-        const options = args[1] || {};
-        return await collection.findOneAndDelete(filter, options);
-      }
-
-      case 'findOneAndReplace': {
-        const filter = args[0] || {};
-        const replacement = args[1];
-        const options = args[2] || {};
-        return await collection.findOneAndReplace(filter, replacement, options);
-      }
-
-      case 'createIndex': {
-        const keys = args[0];
-        const options = args[1] || {};
-        return await collection.createIndex(keys, options);
-      }
-
-      case 'dropIndex': {
-        const indexName = args[0];
-        return await collection.dropIndex(indexName);
-      }
-
-      case 'indexes': {
-        return await collection.indexes();
-      }
-
-      case 'stats': {
-        return await collection.stats();
-      }
-
-      default:
-        throw new Error(`Unsupported method: ${method}`);
+      
+      return result;
     }
+
+    return result;
   }
 
   parseChainedMethods(fullQuery, primaryMethod) {
@@ -499,6 +408,12 @@ class QueryExecutor {
       await conn.close();
     }
     this.connections.clear();
+  }
+
+  // Check if a query type is read-only (safe for auto-execution)
+  isReadOnlyQuery(queryType) {
+    if (!queryType) return false;
+    return READ_ONLY_OPERATIONS.includes(queryType.toLowerCase());
   }
 }
 

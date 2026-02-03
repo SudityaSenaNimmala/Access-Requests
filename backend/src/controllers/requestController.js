@@ -13,13 +13,33 @@ export const createRequest = async (req, res) => {
       return res.status(400).json({ message: 'Query is required' });
     }
 
-    // Extract collection name from query (e.g., db.users.find() -> users)
-    const collectionMatch = query.match(/db\.(\w+)\./);
-    const collectionName = collectionMatch ? collectionMatch[1] : 'unknown';
+    // Extract collection name from query
+    // Supports: db.users.find() -> users
+    // Supports: db.getCollection('users').find() -> users
+    let collectionName = 'unknown';
+    const getCollectionMatch = query.match(/db\.getCollection\s*\(\s*['"]([^'"]+)['"]\s*\)/);
+    if (getCollectionMatch) {
+      collectionName = getCollectionMatch[1];
+    } else {
+      const collectionMatch = query.match(/db\.(\w+)\./);
+      if (collectionMatch && collectionMatch[1] !== 'getCollection') {
+        collectionName = collectionMatch[1];
+      }
+    }
 
     // Determine query type from the method
-    const methodMatch = query.match(/db\.\w+\.(\w+)\s*\(/);
-    const queryType = methodMatch ? methodMatch[1] : 'custom';
+    // Supports: db.users.find() -> find
+    // Supports: db.getCollection('users').find() -> find
+    let queryType = 'custom';
+    const getCollMethodMatch = query.match(/db\.getCollection\s*\([^)]+\)\.(\w+)\s*\(/);
+    if (getCollMethodMatch) {
+      queryType = getCollMethodMatch[1];
+    } else {
+      const methodMatch = query.match(/db\.\w+\.(\w+)\s*\(/);
+      if (methodMatch) {
+        queryType = methodMatch[1];
+      }
+    }
 
     // Validate DB instance exists and is active
     const dbInstance = await DBInstance.findById(dbInstanceId);
@@ -32,6 +52,9 @@ export const createRequest = async (req, res) => {
     if (!teamLead || !['team_lead', 'admin'].includes(teamLead.role)) {
       return res.status(400).json({ message: 'Invalid team lead' });
     }
+
+    // Check if this is a read-only query (auto-execute without approval)
+    const isReadOnly = queryExecutor.isReadOnlyQuery(queryType);
 
     // Create the request
     const request = await Request.create({
@@ -46,8 +69,34 @@ export const createRequest = async (req, res) => {
       queryType,
       teamLeadId,
       teamLeadName: teamLead.name,
+      // If read-only, mark as auto-executed and set status based on execution result
+      isAutoExecuted: isReadOnly,
+      status: isReadOnly ? 'approved' : 'pending',
     });
 
+    // If read-only query, execute immediately without approval
+    if (isReadOnly) {
+      const executionResult = await queryExecutor.executeQuery(request);
+
+      if (executionResult.success) {
+        request.status = 'executed';
+        request.result = executionResult.result;
+        request.executedAt = new Date();
+      } else {
+        request.status = 'failed';
+        request.error = executionResult.error;
+      }
+      await request.save();
+
+      // Return immediately with results for read queries
+      return res.status(201).json({
+        ...request.toObject(),
+        autoExecuted: true,
+        executionResult: executionResult,
+      });
+    }
+
+    // For non-read queries, follow normal approval flow
     // Notify team lead via email
     await emailService.notifyTeamLeadNewRequest(teamLead, request, req.user);
 
@@ -329,26 +378,74 @@ export const resubmitRequest = async (req, res) => {
     }
 
     // Extract collection name from query
-    const collectionMatch = query.match(/db\.(\w+)\./);
-    const collectionName = collectionMatch ? collectionMatch[1] : 'unknown';
+    // Supports: db.users.find() -> users
+    // Supports: db.getCollection('users').find() -> users
+    let collectionName = 'unknown';
+    const getCollectionMatch = query.match(/db\.getCollection\s*\(\s*['"]([^'"]+)['"]\s*\)/);
+    if (getCollectionMatch) {
+      collectionName = getCollectionMatch[1];
+    } else {
+      const collectionMatch = query.match(/db\.(\w+)\./);
+      if (collectionMatch && collectionMatch[1] !== 'getCollection') {
+        collectionName = collectionMatch[1];
+      }
+    }
 
     // Determine query type from the method
-    const methodMatch = query.match(/db\.\w+\.(\w+)\s*\(/);
-    const queryType = methodMatch ? methodMatch[1] : 'custom';
+    // Supports: db.users.find() -> find
+    // Supports: db.getCollection('users').find() -> find
+    let queryType = 'custom';
+    const getCollMethodMatch = query.match(/db\.getCollection\s*\([^)]+\)\.(\w+)\s*\(/);
+    if (getCollMethodMatch) {
+      queryType = getCollMethodMatch[1];
+    } else {
+      const methodMatch = query.match(/db\.\w+\.(\w+)\s*\(/);
+      if (methodMatch) {
+        queryType = methodMatch[1];
+      }
+    }
 
-    // Update the request with new query and reset status to pending
+    // Check if this is a read-only query (auto-execute without approval)
+    const isReadOnly = queryExecutor.isReadOnlyQuery(queryType);
+
+    // Update the request with new query
     request.query = query;
     request.collectionName = collectionName;
     request.queryType = queryType;
-    request.status = 'pending';
+    request.status = isReadOnly ? 'approved' : 'pending';
+    request.isAutoExecuted = isReadOnly;
     request.error = null;
     request.result = null;
     request.reviewComment = null;
     request.reviewedAt = null;
     request.executedAt = null;
     request.resubmittedAt = new Date();
+
+    // If read-only query, execute immediately without approval
+    if (isReadOnly) {
+      const executionResult = await queryExecutor.executeQuery(request);
+
+      if (executionResult.success) {
+        request.status = 'executed';
+        request.result = executionResult.result;
+        request.executedAt = new Date();
+      } else {
+        request.status = 'failed';
+        request.error = executionResult.error;
+      }
+      await request.save();
+
+      // Return immediately with results for read queries
+      return res.json({
+        ...request.toObject(),
+        autoExecuted: true,
+        executionResult: executionResult,
+      });
+    }
+
     await request.save();
 
+    // For non-read queries, follow normal approval flow
     // Get team lead for notification
     const teamLead = await User.findById(request.teamLeadId);
 

@@ -49,12 +49,21 @@ export const createDBInstance = async (req, res) => {
     try {
       const testConn = await mongoose.createConnection(connectionString, {
         dbName: database,
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 15000, // 15 seconds timeout
+        connectTimeoutMS: 15000,
       }).asPromise();
       await testConn.close();
     } catch (connError) {
+      let errorMessage = 'Failed to connect to database.';
+      if (connError.message.includes('timed out')) {
+        errorMessage = 'Connection timed out. Please check: 1) VPN is connected if required, 2) Connection string is correct, 3) MongoDB server is running and accessible.';
+      } else if (connError.message.includes('authentication')) {
+        errorMessage = 'Authentication failed. Please check username and password in connection string.';
+      } else if (connError.message.includes('ENOTFOUND')) {
+        errorMessage = 'Host not found. Please check the hostname in your connection string.';
+      }
       return res.status(400).json({ 
-        message: 'Failed to connect to database. Please check connection string.',
+        message: errorMessage,
         error: connError.message 
       });
     }
@@ -94,12 +103,17 @@ export const updateDBInstance = async (req, res) => {
       try {
         const testConn = await mongoose.createConnection(connectionString, {
           dbName: database || instance.database,
-          serverSelectionTimeoutMS: 5000,
+          serverSelectionTimeoutMS: 15000,
+          connectTimeoutMS: 15000,
         }).asPromise();
         await testConn.close();
       } catch (connError) {
+        let errorMessage = 'Failed to connect to database.';
+        if (connError.message.includes('timed out')) {
+          errorMessage = 'Connection timed out. Please check VPN, connection string, and server accessibility.';
+        }
         return res.status(400).json({ 
-          message: 'Failed to connect to database. Please check connection string.',
+          message: errorMessage,
           error: connError.message 
         });
       }
@@ -145,7 +159,8 @@ export const testConnection = async (req, res) => {
 
     const testConn = await mongoose.createConnection(connectionString, {
       dbName: database,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000, // 15 seconds timeout
+      connectTimeoutMS: 15000,
     }).asPromise();
 
     // Get list of collections
@@ -158,9 +173,17 @@ export const testConnection = async (req, res) => {
       collections: collections.map(c => c.name)
     });
   } catch (error) {
+    let errorMessage = 'Connection failed';
+    if (error.message.includes('timed out')) {
+      errorMessage = 'Connection timed out. Check: 1) VPN connected? 2) Correct connection string? 3) Server accessible?';
+    } else if (error.message.includes('authentication')) {
+      errorMessage = 'Authentication failed. Check username/password.';
+    } else if (error.message.includes('ENOTFOUND')) {
+      errorMessage = 'Host not found. Check hostname in connection string.';
+    }
     res.status(400).json({ 
       success: false, 
-      message: 'Connection failed',
+      message: errorMessage,
       error: error.message 
     });
   }

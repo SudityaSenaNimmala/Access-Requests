@@ -3,7 +3,7 @@ import { requestApi } from '../../services/api';
 import StatusBadge from '../../components/StatusBadge';
 import ResultViewer from '../../components/ResultViewer';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import { FileText, Filter, Clock, User, UserCheck, Eye, X, Database } from 'lucide-react';
+import { FileText, Filter, Clock, User, UserCheck, Eye, X, Database, Zap } from 'lucide-react';
 
 const AllRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -136,7 +136,14 @@ const AllRequests = () => {
                 {requests.map((request) => (
                   <tr key={request._id} className="border-b border-slate-100 hover:bg-slate-50">
                     <td className="py-4 px-4">
-                      <StatusBadge status={request.status} />
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={request.status} />
+                        {request.isAutoExecuted && (
+                          <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full" title="Auto-executed read query">
+                            <Zap className="w-3 h-3" />
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
@@ -235,6 +242,12 @@ const AllRequests = () => {
               <div className="flex items-center gap-3">
                 <h3 className="text-xl font-semibold text-slate-800">Request Details</h3>
                 <StatusBadge status={selectedRequest.status} />
+                {selectedRequest.isAutoExecuted && (
+                  <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                    <Zap className="w-3 h-3" />
+                    Auto-executed
+                  </span>
+                )}
               </div>
               <button
                 onClick={() => setSelectedRequest(null)}

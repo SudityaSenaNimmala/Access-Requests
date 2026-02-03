@@ -61,9 +61,9 @@ const Users = () => {
 
   const getRoleBadge = (role) => {
     const config = {
-      admin: { bg: 'bg-purple-500/20', text: 'text-purple-400', border: 'border-purple-500/30' },
-      team_lead: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30' },
-      developer: { bg: 'bg-slate-500/20', text: 'text-slate-400', border: 'border-slate-500/30' },
+      admin: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200' },
+      team_lead: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' },
+      developer: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200' },
     };
     const c = config[role] || config.developer;
     return (
@@ -80,42 +80,42 @@ const Users = () => {
   return (
     <div className="animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-100">User Management</h1>
-        <p className="text-slate-400 mt-1">Manage user roles and permissions</p>
+        <h1 className="text-3xl font-bold text-slate-800">User Management</h1>
+        <p className="text-slate-500 mt-1">Manage user roles and permissions</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="card bg-purple-500/10 border-purple-500/30">
+        <div className="card bg-purple-50 border-purple-200">
           <div className="flex items-center gap-3">
-            <Shield className="w-8 h-8 text-purple-400" />
+            <Shield className="w-8 h-8 text-purple-600" />
             <div>
-              <p className="text-2xl font-bold text-purple-400">
+              <p className="text-2xl font-bold text-purple-600">
                 {users.filter(u => u.role === 'admin').length}
               </p>
-              <p className="text-sm text-slate-400">Admins</p>
+              <p className="text-sm text-slate-500">Admins</p>
             </div>
           </div>
         </div>
-        <div className="card bg-blue-500/10 border-blue-500/30">
+        <div className="card bg-blue-50 border-blue-200">
           <div className="flex items-center gap-3">
-            <UserCheck className="w-8 h-8 text-blue-400" />
+            <UserCheck className="w-8 h-8 text-blue-600" />
             <div>
-              <p className="text-2xl font-bold text-blue-400">
+              <p className="text-2xl font-bold text-blue-600">
                 {users.filter(u => u.role === 'team_lead').length}
               </p>
-              <p className="text-sm text-slate-400">Team Leads</p>
+              <p className="text-sm text-slate-500">Team Leads</p>
             </div>
           </div>
         </div>
-        <div className="card bg-slate-500/10 border-slate-500/30">
+        <div className="card bg-slate-50 border-slate-200">
           <div className="flex items-center gap-3">
-            <UsersIcon className="w-8 h-8 text-slate-400" />
+            <UsersIcon className="w-8 h-8 text-slate-600" />
             <div>
-              <p className="text-2xl font-bold text-slate-300">
+              <p className="text-2xl font-bold text-slate-700">
                 {users.filter(u => u.role === 'developer').length}
               </p>
-              <p className="text-sm text-slate-400">Developers</p>
+              <p className="text-sm text-slate-500">Developers</p>
             </div>
           </div>
         </div>
@@ -126,17 +126,17 @@ const Users = () => {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-700">
-                <th className="text-left py-4 px-4 text-sm font-medium text-slate-400">User</th>
-                <th className="text-left py-4 px-4 text-sm font-medium text-slate-400">Role</th>
-                <th className="text-left py-4 px-4 text-sm font-medium text-slate-400">Team Lead</th>
-                <th className="text-left py-4 px-4 text-sm font-medium text-slate-400">Status</th>
-                <th className="text-right py-4 px-4 text-sm font-medium text-slate-400">Actions</th>
+              <tr className="border-b border-slate-200">
+                <th className="text-left py-4 px-4 text-sm font-medium text-slate-500">User</th>
+                <th className="text-left py-4 px-4 text-sm font-medium text-slate-500">Role</th>
+                <th className="text-left py-4 px-4 text-sm font-medium text-slate-500">Team Lead</th>
+                <th className="text-left py-4 px-4 text-sm font-medium text-slate-500">Status</th>
+                <th className="text-right py-4 px-4 text-sm font-medium text-slate-500">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user._id} className="border-b border-slate-800 hover:bg-slate-800/50">
+                <tr key={user._id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
                       {user.avatar ? (
@@ -146,14 +146,14 @@ const Users = () => {
                           className="w-10 h-10 rounded-full"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
                           <span className="text-white font-bold">
                             {user.name?.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
                       <div>
-                        <p className="font-medium text-slate-200">{user.name}</p>
+                        <p className="font-medium text-slate-800">{user.name}</p>
                         <p className="text-sm text-slate-500">{user.email}</p>
                       </div>
                     </div>
@@ -161,14 +161,14 @@ const Users = () => {
                   <td className="py-4 px-4">
                     {getRoleBadge(user.role)}
                   </td>
-                  <td className="py-4 px-4 text-slate-400">
+                  <td className="py-4 px-4 text-slate-700">
                     {user.teamLeadId?.name || '-'}
                   </td>
                   <td className="py-4 px-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       user.isActive
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                        ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                        : 'bg-red-100 text-red-700 border border-red-200'
                     }`}>
                       {user.isActive ? 'Active' : 'Inactive'}
                     </span>
@@ -177,7 +177,7 @@ const Users = () => {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleEditClick(user)}
-                        className="p-2 text-slate-400 hover:text-primary-400 hover:bg-slate-700 rounded-lg transition-colors"
+                        className="p-2 text-slate-500 hover:text-primary-600 hover:bg-slate-100 rounded-lg transition-colors"
                         title="Edit role"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -186,8 +186,8 @@ const Users = () => {
                         onClick={() => handleToggleStatus(user._id)}
                         className={`p-2 rounded-lg transition-colors ${
                           user.isActive
-                            ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10'
-                            : 'text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10'
+                            ? 'text-slate-500 hover:text-red-600 hover:bg-red-50'
+                            : 'text-slate-500 hover:text-emerald-600 hover:bg-emerald-50'
                         }`}
                         title={user.isActive ? 'Deactivate' : 'Activate'}
                       >
@@ -204,19 +204,19 @@ const Users = () => {
 
       {/* Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="card max-w-md w-full animate-slide-up">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full animate-slide-up p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-slate-200">Edit User Role</h3>
+              <h3 className="text-xl font-semibold text-slate-800">Edit User Role</h3>
               <button
                 onClick={() => setEditingUser(null)}
-                className="p-2 text-slate-400 hover:text-slate-200"
+                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="flex items-center gap-3 mb-6 p-3 bg-slate-800/50 rounded-xl">
+            <div className="flex items-center gap-3 mb-6 p-3 bg-slate-50 rounded-xl">
               {editingUser.avatar ? (
                 <img
                   src={editingUser.avatar}
@@ -224,21 +224,21 @@ const Users = () => {
                   className="w-12 h-12 rounded-full"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
                   <span className="text-white font-bold text-lg">
                     {editingUser.name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
               <div>
-                <p className="font-medium text-slate-200">{editingUser.name}</p>
+                <p className="font-medium text-slate-800">{editingUser.name}</p>
                 <p className="text-sm text-slate-500">{editingUser.email}</p>
               </div>
             </div>
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm text-slate-400 mb-2">Role</label>
+                <label className="block text-sm text-slate-600 mb-2">Role</label>
                 <select
                   value={editForm.role}
                   onChange={(e) => setEditForm(prev => ({ ...prev, role: e.target.value }))}
@@ -252,7 +252,7 @@ const Users = () => {
 
               {editForm.role === 'developer' && (
                 <div>
-                  <label className="block text-sm text-slate-400 mb-2">Assign Team Lead</label>
+                  <label className="block text-sm text-slate-600 mb-2">Assign Team Lead</label>
                   <select
                     value={editForm.teamLeadId}
                     onChange={(e) => setEditForm(prev => ({ ...prev, teamLeadId: e.target.value }))}

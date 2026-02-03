@@ -166,8 +166,8 @@ const DBInstances = () => {
     <div className="animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">DB Instances</h1>
-          <p className="text-slate-400 mt-1">Manage database connections</p>
+          <h1 className="text-3xl font-bold text-slate-800">DB Instances</h1>
+          <p className="text-slate-500 mt-1">Manage database connections</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
@@ -187,39 +187,39 @@ const DBInstances = () => {
               className="card animate-slide-up"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     instance.isActive
-                      ? 'bg-emerald-500/20 text-emerald-400'
-                      : 'bg-slate-500/20 text-slate-400'
+                      ? 'bg-emerald-100 text-emerald-600'
+                      : 'bg-slate-100 text-slate-500'
                   }`}>
                     <Database className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-200">{instance.name}</h3>
+                    <h3 className="font-semibold text-slate-800">{instance.name}</h3>
                     <p className="text-sm text-slate-500">{instance.database}</p>
                   </div>
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                   instance.isActive
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                    : 'bg-slate-100 text-slate-600 border border-slate-200'
                 }`}>
                   {instance.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
 
               {instance.description && (
-                <p className="text-sm text-slate-400 mb-4 line-clamp-2">
+                <p className="text-sm text-slate-600 mb-4 line-clamp-2">
                   {instance.description}
                 </p>
               )}
 
-              <div className="flex items-center gap-2 pt-4 border-t border-slate-700">
+              <div className="flex items-center gap-2 pt-4 border-t border-slate-200">
                 <button
                   onClick={() => handleOpenModal(instance)}
-                  className="flex-1 py-2 text-sm text-slate-400 hover:text-primary-400 hover:bg-slate-800 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-2 text-sm text-slate-600 hover:text-primary-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <Edit2 className="w-4 h-4" />
                   Edit
@@ -228,8 +228,8 @@ const DBInstances = () => {
                   onClick={() => handleToggleActive(instance)}
                   className={`flex-1 py-2 text-sm rounded-lg transition-colors flex items-center justify-center gap-2 ${
                     instance.isActive
-                      ? 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/10'
-                      : 'text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10'
+                      ? 'text-slate-600 hover:text-amber-600 hover:bg-amber-50'
+                      : 'text-slate-600 hover:text-emerald-600 hover:bg-emerald-50'
                   }`}
                 >
                   {instance.isActive ? (
@@ -246,7 +246,7 @@ const DBInstances = () => {
                 </button>
                 <button
                   onClick={() => handleDelete(instance)}
-                  className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                  className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -256,8 +256,8 @@ const DBInstances = () => {
         </div>
       ) : (
         <div className="card text-center py-16">
-          <Database className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-slate-300 mb-2">No DB instances</h3>
+          <Database className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-xl font-medium text-slate-700 mb-2">No DB instances</h3>
           <p className="text-slate-500 mb-6">Add your first database connection to get started</p>
           <button
             onClick={() => handleOpenModal()}
@@ -271,15 +271,15 @@ const DBInstances = () => {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="card max-w-lg w-full animate-slide-up max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full animate-slide-up max-h-[90vh] overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-slate-200">
+              <h3 className="text-xl font-semibold text-slate-800">
                 {editingInstance ? 'Edit DB Instance' : 'Add DB Instance'}
               </h3>
               <button
                 onClick={handleCloseModal}
-                className="p-2 text-slate-400 hover:text-slate-200"
+                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -287,8 +287,8 @@ const DBInstances = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm text-slate-400 mb-2">
-                  Name <span className="text-red-400">*</span>
+                <label className="block text-sm text-slate-600 mb-2">
+                  Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -301,8 +301,8 @@ const DBInstances = () => {
               </div>
 
               <div>
-                <label className="block text-sm text-slate-400 mb-2">
-                  Connection String {!editingInstance && <span className="text-red-400">*</span>}
+                <label className="block text-sm text-slate-600 mb-2">
+                  Connection String {!editingInstance && <span className="text-red-500">*</span>}
                 </label>
                 <input
                   type="password"
@@ -318,8 +318,8 @@ const DBInstances = () => {
               </div>
 
               <div>
-                <label className="block text-sm text-slate-400 mb-2">
-                  Database Name <span className="text-red-400">*</span>
+                <label className="block text-sm text-slate-600 mb-2">
+                  Database Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -332,7 +332,7 @@ const DBInstances = () => {
               </div>
 
               <div>
-                <label className="block text-sm text-slate-400 mb-2">Description</label>
+                <label className="block text-sm text-slate-600 mb-2">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -343,7 +343,7 @@ const DBInstances = () => {
               </div>
 
               {/* Test Connection */}
-              <div className="pt-4 border-t border-slate-700">
+              <div className="pt-4 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={handleTestConnection}
@@ -366,23 +366,23 @@ const DBInstances = () => {
                 {testResult && (
                   <div className={`mt-3 p-3 rounded-lg ${
                     testResult.success
-                      ? 'bg-emerald-500/10 border border-emerald-500/30'
-                      : 'bg-red-500/10 border border-red-500/30'
+                      ? 'bg-emerald-50 border border-emerald-200'
+                      : 'bg-red-50 border border-red-200'
                   }`}>
                     {testResult.success ? (
                       <div>
-                        <p className="text-emerald-400 font-medium flex items-center gap-2">
+                        <p className="text-emerald-700 font-medium flex items-center gap-2">
                           <CheckCircle className="w-4 h-4" />
                           Connection successful!
                         </p>
                         {testResult.collections && (
-                          <p className="text-sm text-slate-400 mt-1">
+                          <p className="text-sm text-slate-600 mt-1">
                             Found {testResult.collections.length} collections
                           </p>
                         )}
                       </div>
                     ) : (
-                      <p className="text-red-400 text-sm flex items-center gap-2">
+                      <p className="text-red-700 text-sm flex items-center gap-2">
                         <XCircle className="w-4 h-4" />
                         {testResult.error}
                       </p>

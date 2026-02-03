@@ -70,6 +70,10 @@ const requestSchema = new mongoose.Schema(
     executedAt: {
       type: Date,
     },
+    isAutoExecuted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

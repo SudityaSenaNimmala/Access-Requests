@@ -34,7 +34,29 @@ const ResultViewer = ({ result, error }) => {
   }
 
   const isArray = Array.isArray(result);
+  const isPrimitive = typeof result === 'number' || typeof result === 'string' || typeof result === 'boolean';
   const itemCount = isArray ? result.length : 1;
+
+  // For primitive values (like count results), show a simpler display
+  if (isPrimitive) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="font-medium text-slate-700">Result:</span>
+            <span className="text-2xl font-bold text-primary-600">{String(result)}</span>
+          </div>
+          <button
+            onClick={copyToClipboard}
+            className="p-2 text-slate-500 hover:text-slate-700 transition-colors"
+            title="Copy to clipboard"
+          >
+            {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
