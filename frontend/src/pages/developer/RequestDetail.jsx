@@ -15,7 +15,6 @@ import {
   XCircle,
   RefreshCw,
   Edit3,
-  Zap,
 } from 'lucide-react';
 
 const RequestDetail = () => {
@@ -54,16 +53,7 @@ const RequestDetail = () => {
 
     try {
       const response = await requestApi.resubmit(id, editedQuery);
-      // Handle auto-executed read queries
-      if (response.data.autoExecuted) {
-        setRequest({
-          ...response.data,
-          result: response.data.result,
-          error: response.data.error,
-        });
-      } else {
-        setRequest(response.data);
-      }
+      setRequest(response.data);
       setIsEditing(false);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to resubmit request');
@@ -118,12 +108,6 @@ const RequestDetail = () => {
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-2xl font-bold text-slate-800">{request.dbInstanceName}</h1>
             <StatusBadge status={request.status} />
-            {request.isAutoExecuted && (
-              <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                <Zap className="w-3 h-3" />
-                Auto-executed
-              </span>
-            )}
           </div>
           <p className="text-slate-500">Request ID: {request._id}</p>
         </div>

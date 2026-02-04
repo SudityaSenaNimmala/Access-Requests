@@ -53,10 +53,7 @@ export const createRequest = async (req, res) => {
       return res.status(400).json({ message: 'Invalid team lead' });
     }
 
-    // Check if this is a read-only query (auto-execute without approval)
-    const isReadOnly = queryExecutor.isReadOnlyQuery(queryType);
-
-    // Create the request
+    // Create the request - all queries require approval
     const request = await Request.create({
       developerId: req.user._id,
       developerName: req.user.name,
@@ -69,34 +66,9 @@ export const createRequest = async (req, res) => {
       queryType,
       teamLeadId,
       teamLeadName: teamLead.name,
-      // If read-only, mark as auto-executed and set status based on execution result
-      isAutoExecuted: isReadOnly,
-      status: isReadOnly ? 'approved' : 'pending',
+      status: 'pending',
     });
 
-    // If read-only query, execute immediately without approval
-    if (isReadOnly) {
-      const executionResult = await queryExecutor.executeQuery(request);
-
-      if (executionResult.success) {
-        request.status = 'executed';
-        request.result = executionResult.result;
-        request.executedAt = new Date();
-      } else {
-        request.status = 'failed';
-        request.error = executionResult.error;
-      }
-      await request.save();
-
-      // Return immediately with results for read queries
-      return res.status(201).json({
-        ...request.toObject(),
-        autoExecuted: true,
-        executionResult: executionResult,
-      });
-    }
-
-    // For non-read queries, follow normal approval flow
     // Notify team lead via email
     await emailService.notifyTeamLeadNewRequest(teamLead, request, req.user);
 
@@ -405,43 +377,17 @@ export const resubmitRequest = async (req, res) => {
       }
     }
 
-    // Check if this is a read-only query (auto-execute without approval)
-    const isReadOnly = queryExecutor.isReadOnlyQuery(queryType);
-
-    // Update the request with new query
+    // Update the request with new query - all queries require approval
     request.query = query;
     request.collectionName = collectionName;
     request.queryType = queryType;
-    request.status = isReadOnly ? 'approved' : 'pending';
-    request.isAutoExecuted = isReadOnly;
+    request.status = 'pending';
     request.error = null;
     request.result = null;
     request.reviewComment = null;
     request.reviewedAt = null;
     request.executedAt = null;
     request.resubmittedAt = new Date();
-
-    // If read-only query, execute immediately without approval
-    if (isReadOnly) {
-      const executionResult = await queryExecutor.executeQuery(request);
-
-      if (executionResult.success) {
-        request.status = 'executed';
-        request.result = executionResult.result;
-        request.executedAt = new Date();
-      } else {
-        request.status = 'failed';
-        request.error = executionResult.error;
-      }
-      await request.save();
-
-      // Return immediately with results for read queries
-      return res.json({
-        ...request.toObject(),
-        autoExecuted: true,
-        executionResult: executionResult,
-      });
-    }
 
     await request.save();
 

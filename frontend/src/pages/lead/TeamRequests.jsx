@@ -51,9 +51,11 @@ const TeamRequests = () => {
   };
 
   const filters = [
-    { value: 'pending', label: 'Pending', count: requests.filter(r => r.status === 'pending').length },
+    { value: 'pending', label: 'Pending' },
     { value: 'all', label: 'All' },
+    { value: 'approved', label: 'Approved' },
     { value: 'executed', label: 'Executed' },
+    { value: 'failed', label: 'Failed' },
     { value: 'rejected', label: 'Rejected' },
   ];
 

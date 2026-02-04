@@ -44,9 +44,14 @@ const ReviewRequest = () => {
   const handleApprove = async () => {
     setActionLoading(true);
     try {
-      await requestApi.approve(id, comment);
-      toast.success('Request approved and query executed!');
-      fetchRequest();
+      const response = await requestApi.approve(id, comment);
+      // Update state immediately with the response (includes execution results)
+      setRequest(response.data);
+      if (response.data.status === 'executed') {
+        toast.success('Request approved and query executed successfully!');
+      } else if (response.data.status === 'failed') {
+        toast.error('Request approved but query execution failed');
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to approve request');
     } finally {
@@ -260,7 +265,7 @@ const ReviewRequest = () => {
         )}
 
         {/* Results (if executed) */}
-        {(request.result || request.error) && (
+        {((request.result !== undefined && request.result !== null) || request.error) && (
           <div className="card">
             <h2 className="text-lg font-semibold text-slate-800 mb-4">
               {request.error ? 'Execution Error' : 'Query Results'}

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Clock, Database, User, ArrowRight, Zap } from 'lucide-react';
+import { Clock, Database, User, ArrowRight } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 
 const RequestCard = ({ request, showDeveloper = false, linkTo }) => {
@@ -24,12 +24,6 @@ const RequestCard = ({ request, showDeveloper = false, linkTo }) => {
             <span className="text-xs text-slate-500 uppercase tracking-wide">
               {request.queryType}
             </span>
-            {request.isAutoExecuted && (
-              <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                <Zap className="w-3 h-3" />
-                Auto
-              </span>
-            )}
           </div>
 
           <h3 className="font-semibold text-slate-800 mb-2 truncate group-hover:text-primary-500 transition-colors">

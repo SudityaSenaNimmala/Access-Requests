@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { requestApi, userApi, dbInstanceApi } from '../../services/api';
 import QueryEditor from '../../components/QueryEditor';
-import ResultViewer from '../../components/ResultViewer';
-import { Send, Database, User, FileText, Code, Zap, CheckCircle, XCircle } from 'lucide-react';
+import { Send, Database, User, FileText, Code } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const NewRequest = () => {
@@ -13,7 +12,6 @@ const NewRequest = () => {
   const [loading, setLoading] = useState(false);
   const [dbInstances, setDbInstances] = useState([]);
   const [teamLeads, setTeamLeads] = useState([]);
-  const [autoExecuteResult, setAutoExecuteResult] = useState(null);
 
   const [formData, setFormData] = useState({
     dbInstanceId: '',
@@ -60,44 +58,15 @@ const NewRequest = () => {
     }
 
     setLoading(true);
-    setAutoExecuteResult(null);
     try {
       const response = await requestApi.create(formData);
-      
-      // Check if this was an auto-executed read query
-      if (response.data.autoExecuted) {
-        const result = response.data;
-        setAutoExecuteResult({
-          requestId: result._id,
-          status: result.status,
-          result: result.result,
-          error: result.error,
-          executionResult: result.executionResult,
-        });
-        
-        if (result.status === 'executed') {
-          toast.success('Read query executed automatically!');
-        } else {
-          toast.error('Query execution failed');
-        }
-      } else {
-        toast.success('Request submitted for approval!');
-        navigate(`/developer/requests/${response.data._id}`);
-      }
+      toast.success('Request submitted for approval!');
+      navigate(`/developer/requests/${response.data._id}`);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to submit request');
     } finally {
       setLoading(false);
     }
-  };
-
-  // Reset auto-execute result when starting a new query
-  const handleNewQuery = () => {
-    setAutoExecuteResult(null);
-    setFormData(prev => ({
-      ...prev,
-      query: '// Write your MongoDB query here\n// Examples:\n// db.users.find({ status: "active" }).limit(10)\n// db.orders.aggregate([{ $match: { status: "pending" } }])\n// db.products.countDocuments({ category: "electronics" })\n',
-    }));
   };
 
   return (
@@ -106,67 +75,8 @@ const NewRequest = () => {
         <h1 className="text-3xl font-bold text-slate-800">New Query Request</h1>
         <p className="text-slate-500 mt-1">
           Submit a query for team lead approval
-          <span className="ml-2 inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-            <Zap className="w-3 h-3" />
-            Read queries execute instantly
-          </span>
         </p>
       </div>
-
-      {/* Auto-Execute Result Display */}
-      {autoExecuteResult && (
-        <div className="mb-6 card border-2 border-primary-200 bg-primary-50/30">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              {autoExecuteResult.status === 'executed' ? (
-                <CheckCircle className="w-6 h-6 text-green-500" />
-              ) : (
-                <XCircle className="w-6 h-6 text-red-500" />
-              )}
-              <div>
-                <h3 className="font-semibold text-slate-800">
-                  {autoExecuteResult.status === 'executed' 
-                    ? 'Query Executed Successfully' 
-                    : 'Query Execution Failed'}
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Read query was auto-executed without approval
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => navigate(`/developer/requests/${autoExecuteResult.requestId}`)}
-                className="btn-secondary text-sm"
-              >
-                View Details
-              </button>
-              <button
-                type="button"
-                onClick={handleNewQuery}
-                className="btn-primary text-sm"
-              >
-                New Query
-              </button>
-            </div>
-          </div>
-          
-          {autoExecuteResult.status === 'executed' && autoExecuteResult.result && (
-            <div className="mt-4">
-              <h4 className="text-sm font-medium text-slate-700 mb-2">Query Results:</h4>
-              <ResultViewer result={autoExecuteResult.result} />
-            </div>
-          )}
-          
-          {autoExecuteResult.status === 'failed' && autoExecuteResult.error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <h4 className="text-sm font-medium text-red-700 mb-1">Error:</h4>
-              <p className="text-sm text-red-600 font-mono">{autoExecuteResult.error}</p>
-            </div>
-          )}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Developer Info */}

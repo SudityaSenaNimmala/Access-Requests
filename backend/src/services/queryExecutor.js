@@ -1,15 +1,6 @@
 import mongoose from 'mongoose';
 import DBInstance from '../models/DBInstance.js';
 
-// ONLY these operations are read-only and safe for auto-execution
-// Everything else requires approval (safe default)
-const READ_ONLY_OPERATIONS = [
-  'find', 'findone',
-  'count', 'countdocuments', 'estimateddocumentcount',
-  'distinct',
-  'aggregate'
-];
-
 class QueryExecutor {
   constructor() {
     this.connections = new Map();
@@ -408,12 +399,6 @@ class QueryExecutor {
       await conn.close();
     }
     this.connections.clear();
-  }
-
-  // Check if a query type is read-only (safe for auto-execution)
-  isReadOnlyQuery(queryType) {
-    if (!queryType) return false;
-    return READ_ONLY_OPERATIONS.includes(queryType.toLowerCase());
   }
 }
 
