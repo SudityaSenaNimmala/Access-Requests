@@ -24,6 +24,14 @@ class QueryExecutor {
     }
 
     const connectionString = dbInstance.getConnectionString();
+    
+    // Debug: Check if decryption worked
+    if (!connectionString || !connectionString.startsWith('mongodb')) {
+      console.error('Decryption failed. Raw stored value length:', dbInstance.connectionString?.length);
+      console.error('Decrypted value starts with:', connectionString?.substring(0, 20));
+      throw new Error('Failed to decrypt connection string. The DB instance may have been created with a different encryption key. Please delete and re-create the DB instance.');
+    }
+    
     const conn = await mongoose.createConnection(connectionString, {
       dbName: dbInstance.database,
     }).asPromise();
@@ -236,13 +244,87 @@ class QueryExecutor {
     // Parse chained methods from full query (e.g., .limit(10).sort({_id:-1}))
     const chainedMethods = this.parseChainedMethods(fullQuery, method);
 
-    // Dynamic method execution - call the method directly on collection
-    if (typeof collection[method] !== 'function') {
-      // Handle deprecated count() -> countDocuments()
-      if (method === 'count') {
-        const filter = args[0] || {};
-        return await collection.countDocuments(filter);
+    // Map MongoDB shell methods to runCommand for exact shell behavior
+    // This ensures queries run exactly as they would in MongoDB shell
+    const shellMethodsToCommand = {
+      'update': () => {
+        const cmd = {
+          update: collectionName,
+          updates: [{
+            q: args[0] || {},
+            u: args[1] || {},
+            multi: args[2]?.multi || false,
+            upsert: args[2]?.upsert || false
+          }]
+        };
+        return db.command(cmd);
+      },
+      'remove': () => {
+        const cmd = {
+          delete: collectionName,
+          deletes: [{
+            q: args[0] || {},
+            limit: args[1]?.justOne ? 1 : 0
+          }]
+        };
+        return db.command(cmd);
+      },
+      'insert': () => {
+        const docs = Array.isArray(args[0]) ? args[0] : [args[0]];
+        const cmd = {
+          insert: collectionName,
+          documents: docs
+        };
+        return db.command(cmd);
+      },
+      'save': () => {
+        const doc = args[0] || {};
+        if (doc._id) {
+          const cmd = {
+            update: collectionName,
+            updates: [{
+              q: { _id: doc._id },
+              u: doc,
+              upsert: true
+            }]
+          };
+          return db.command(cmd);
+        } else {
+          const cmd = {
+            insert: collectionName,
+            documents: [doc]
+          };
+          return db.command(cmd);
+        }
+      },
+      'count': () => {
+        const cmd = {
+          count: collectionName,
+          query: args[0] || {}
+        };
+        return db.command(cmd).then(r => r.n);
+      },
+      'findAndModify': () => {
+        const cmd = {
+          findAndModify: collectionName,
+          query: args[0]?.query || {},
+          update: args[0]?.update,
+          remove: args[0]?.remove || false,
+          new: args[0]?.new || false,
+          upsert: args[0]?.upsert || false,
+          sort: args[0]?.sort
+        };
+        return db.command(cmd);
       }
+    };
+
+    // Check if this is a shell-only method that needs command translation
+    if (shellMethodsToCommand[method]) {
+      return await shellMethodsToCommand[method]();
+    }
+
+    // For standard driver methods, call directly
+    if (typeof collection[method] !== 'function') {
       throw new Error(`Unsupported method: ${method}`);
     }
 
