@@ -1,8 +1,10 @@
-import { Link } from 'react-router-dom';
-import { Clock, Database, User, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Clock, Database, User, ArrowRight, Copy } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 
-const RequestCard = ({ request, showDeveloper = false, linkTo }) => {
+const RequestCard = ({ request, showDeveloper = false, linkTo, showCloneButton = false }) => {
+  const navigate = useNavigate();
+  
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
@@ -10,6 +12,20 @@ const RequestCard = ({ request, showDeveloper = false, linkTo }) => {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const handleClone = (e) => {
+    e.preventDefault(); // Prevent card click navigation
+    e.stopPropagation(); // Prevent event bubbling
+    // Convert ObjectIds to strings
+    const cloneData = {
+      dbInstanceId: typeof request.dbInstanceId === 'string' ? request.dbInstanceId : request.dbInstanceId?._id || String(request.dbInstanceId),
+      query: request.query,
+      reason: request.reason,
+      teamLeadId: typeof request.teamLeadId === 'string' ? request.teamLeadId : request.teamLeadId?._id || String(request.teamLeadId),
+    };
+    console.log('Clone data being sent:', cloneData);
+    navigate('/developer/new-request', { state: { cloneData } });
   };
 
   return (
@@ -54,7 +70,18 @@ const RequestCard = ({ request, showDeveloper = false, linkTo }) => {
           </div>
         </div>
 
-        <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
+        <div className="flex items-center gap-2">
+          {showCloneButton && (
+            <button
+              onClick={handleClone}
+              className="p-2 text-slate-400 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-colors"
+              title="Clone this request"
+            >
+              <Copy className="w-4 h-4" />
+            </button>
+          )}
+          <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
+        </div>
       </div>
     </Link>
   );

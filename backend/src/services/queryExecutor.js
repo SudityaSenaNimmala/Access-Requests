@@ -247,7 +247,8 @@ class QueryExecutor {
     // Map MongoDB shell methods to runCommand for exact shell behavior
     // This ensures queries run exactly as they would in MongoDB shell
     const shellMethodsToCommand = {
-      'update': () => {
+      'update': async () => {
+        const startTime = Date.now();
         const cmd = {
           update: collectionName,
           updates: [{
@@ -257,9 +258,25 @@ class QueryExecutor {
             upsert: args[2]?.upsert || false
           }]
         };
-        return db.command(cmd);
+        const result = await db.command(cmd);
+        const duration = Date.now() - startTime;
+        
+        const matched = result.n || 0;
+        const modified = result.nModified || 0;
+        const upserted = result.upserted?.length || 0;
+        
+        if (upserted > 0) {
+          return `Inserted ${upserted} record(s) in ${duration}ms`;
+        } else if (modified > 0) {
+          return `Updated ${modified} existing record(s) in ${duration}ms`;
+        } else if (matched > 0) {
+          return `Matched ${matched} record(s) but no changes were made in ${duration}ms`;
+        } else {
+          return `No records matched in ${duration}ms`;
+        }
       },
-      'remove': () => {
+      'remove': async () => {
+        const startTime = Date.now();
         const cmd = {
           delete: collectionName,
           deletes: [{
@@ -267,18 +284,30 @@ class QueryExecutor {
             limit: args[1]?.justOne ? 1 : 0
           }]
         };
-        return db.command(cmd);
+        const result = await db.command(cmd);
+        const duration = Date.now() - startTime;
+        const deleted = result.n || 0;
+        
+        return `Deleted ${deleted} record(s) in ${duration}ms`;
       },
-      'insert': () => {
+      'insert': async () => {
+        const startTime = Date.now();
         const docs = Array.isArray(args[0]) ? args[0] : [args[0]];
         const cmd = {
           insert: collectionName,
           documents: docs
         };
-        return db.command(cmd);
+        const result = await db.command(cmd);
+        const duration = Date.now() - startTime;
+        const inserted = result.n || 0;
+        
+        return `Inserted ${inserted} record(s) in ${duration}ms`;
       },
-      'save': () => {
+      'save': async () => {
+        const startTime = Date.now();
         const doc = args[0] || {};
+        let result;
+        
         if (doc._id) {
           const cmd = {
             update: collectionName,
@@ -288,13 +317,26 @@ class QueryExecutor {
               upsert: true
             }]
           };
-          return db.command(cmd);
+          result = await db.command(cmd);
+          const duration = Date.now() - startTime;
+          const upserted = result.upserted?.length || 0;
+          const modified = result.nModified || 0;
+          
+          if (upserted > 0) {
+            return `Inserted 1 record in ${duration}ms`;
+          } else if (modified > 0) {
+            return `Updated 1 existing record in ${duration}ms`;
+          } else {
+            return `Matched 1 record(s) but no changes were made in ${duration}ms`;
+          }
         } else {
           const cmd = {
             insert: collectionName,
             documents: [doc]
           };
-          return db.command(cmd);
+          result = await db.command(cmd);
+          const duration = Date.now() - startTime;
+          return `Inserted 1 record in ${duration}ms`;
         }
       },
       'count': () => {
@@ -349,7 +391,50 @@ class QueryExecutor {
       return await result.toArray();
     } else if (result && typeof result.then === 'function') {
       // It's a promise - await it
+      const startTime = Date.now();
       result = await result;
+      const duration = Date.now() - startTime;
+      
+      // Format write operation results exactly like MongoDB Compass
+      if (result && typeof result === 'object') {
+        // updateOne, updateMany, replaceOne
+        if ('matchedCount' in result || 'modifiedCount' in result) {
+          const matched = result.matchedCount || 0;
+          const modified = result.modifiedCount || 0;
+          const upserted = result.upsertedCount || 0;
+          
+          if (upserted > 0) {
+            return `Inserted ${upserted} record(s) in ${duration}ms`;
+          } else if (modified > 0) {
+            return `Updated ${modified} existing record(s) in ${duration}ms`;
+          } else if (matched > 0) {
+            return `Matched ${matched} record(s) but no changes were made in ${duration}ms`;
+          } else {
+            return `No records matched in ${duration}ms`;
+          }
+        }
+        // insertOne, insertMany
+        else if ('insertedCount' in result || 'insertedId' in result) {
+          const inserted = result.insertedCount || (result.insertedId ? 1 : 0);
+          return `Inserted ${inserted} record(s) in ${duration}ms`;
+        }
+        // deleteOne, deleteMany
+        else if ('deletedCount' in result) {
+          const deleted = result.deletedCount || 0;
+          return `Deleted ${deleted} record(s) in ${duration}ms`;
+        }
+        // bulkWrite
+        else if ('insertedCount' in result && 'matchedCount' in result && 'deletedCount' in result) {
+          const inserted = result.insertedCount || 0;
+          const modified = result.modifiedCount || 0;
+          const deleted = result.deletedCount || 0;
+          const parts = [];
+          if (inserted > 0) parts.push(`Inserted ${inserted}`);
+          if (modified > 0) parts.push(`Updated ${modified}`);
+          if (deleted > 0) parts.push(`Deleted ${deleted}`);
+          return parts.length > 0 ? `${parts.join(', ')} record(s) in ${duration}ms` : `No changes made in ${duration}ms`;
+        }
+      }
       
       // Apply post-processing for chained methods on the result
       for (const chain of chainedMethods) {

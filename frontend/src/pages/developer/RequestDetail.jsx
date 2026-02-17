@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { requestApi } from '../../services/api';
 import StatusBadge from '../../components/StatusBadge';
 import QueryEditor from '../../components/QueryEditor';
@@ -15,10 +15,12 @@ import {
   XCircle,
   RefreshCw,
   Edit3,
+  Copy,
 } from 'lucide-react';
 
 const RequestDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -68,6 +70,19 @@ const RequestDetail = () => {
     setError('');
   };
 
+  const handleCloneRequest = () => {
+    // Navigate to new request page with pre-filled data
+    // Convert ObjectIds to strings
+    const cloneData = {
+      dbInstanceId: typeof request.dbInstanceId === 'string' ? request.dbInstanceId : request.dbInstanceId?._id || String(request.dbInstanceId),
+      query: request.query,
+      reason: request.reason,
+      teamLeadId: typeof request.teamLeadId === 'string' ? request.teamLeadId : request.teamLeadId?._id || String(request.teamLeadId),
+    };
+    console.log('Clone data being sent:', cloneData);
+    navigate('/developer/new-request', { state: { cloneData } });
+  };
+
   const formatDate = (date) => {
     return new Date(date).toLocaleString('en-US', {
       weekday: 'short',
@@ -111,6 +126,14 @@ const RequestDetail = () => {
           </div>
           <p className="text-slate-500">Request ID: {request._id}</p>
         </div>
+        {/* Clone Request Button */}
+        <button
+          onClick={handleCloneRequest}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-300"
+        >
+          <Copy className="w-4 h-4" />
+          <span className="hidden sm:inline">Clone Request</span>
+        </button>
       </div>
 
       <div className="space-y-6">

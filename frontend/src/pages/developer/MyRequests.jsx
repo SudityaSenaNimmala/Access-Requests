@@ -82,7 +82,7 @@ const MyRequests = () => {
         <>
           <div className="grid gap-4">
             {requests.map((request) => (
-              <RequestCard key={request._id} request={request} />
+              <RequestCard key={request._id} request={request} showCloneButton={true} />
             ))}
           </div>
 

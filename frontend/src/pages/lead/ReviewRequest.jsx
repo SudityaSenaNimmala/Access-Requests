@@ -25,6 +25,7 @@ const ReviewRequest = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [comment, setComment] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
 
   useEffect(() => {
     fetchRequest();
@@ -52,6 +53,7 @@ const ReviewRequest = () => {
       } else if (response.data.status === 'failed') {
         toast.error('Request approved but query execution failed');
       }
+      setShowApproveModal(false);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to approve request');
     } finally {
@@ -233,15 +235,11 @@ const ReviewRequest = () => {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <button
-                onClick={handleApprove}
+                onClick={() => setShowApproveModal(true)}
                 disabled={actionLoading}
                 className="btn-success flex items-center justify-center gap-2 flex-1"
               >
-                {actionLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <CheckCircle className="w-5 h-5" />
-                )}
+                <CheckCircle className="w-5 h-5" />
                 Approve & Execute
               </button>
               <button
@@ -304,6 +302,116 @@ const ReviewRequest = () => {
                 className="btn-danger flex-1"
               >
                 {actionLoading ? 'Rejecting...' : 'Confirm Reject'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Approve Confirmation Modal */}
+      {showApproveModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full animate-slide-up p-6">
+            {/* Header with Warning Icon */}
+            <div className="flex items-start gap-4 mb-6">
+              <div className={`p-3 rounded-xl ${isWriteOperation ? 'bg-amber-100' : 'bg-blue-100'}`}>
+                <AlertTriangle className={`w-6 h-6 ${isWriteOperation ? 'text-amber-600' : 'text-blue-600'}`} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-slate-800 mb-1">
+                  Confirm Query Execution
+                </h3>
+                <p className="text-sm text-slate-500">
+                  Please review the details before approving
+                </p>
+              </div>
+            </div>
+
+            {/* Request Summary */}
+            <div className="bg-slate-50 rounded-xl p-4 mb-4 space-y-3">
+              <div className="flex justify-between items-start">
+                <span className="text-sm text-slate-500">Developer:</span>
+                <span className="text-sm font-medium text-slate-800">{request.developerName}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-sm text-slate-500">Database:</span>
+                <span className="text-sm font-medium text-slate-800">{request.dbInstanceName}</span>
+              </div>
+              {request.collectionName && request.collectionName !== 'unknown' && (
+                <div className="flex justify-between items-start">
+                  <span className="text-sm text-slate-500">Collection:</span>
+                  <span className="text-sm font-medium text-slate-800">{request.collectionName}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-start">
+                <span className="text-sm text-slate-500">Query Type:</span>
+                <span className={`text-sm font-medium ${isWriteOperation ? 'text-amber-600' : 'text-slate-800'}`}>
+                  {request.queryType} {isWriteOperation && '(Write)'}
+                </span>
+              </div>
+              <div className="pt-2 border-t border-slate-200">
+                <span className="text-sm text-slate-500 block mb-1">Reason:</span>
+                <span className="text-sm text-slate-800">{request.reason}</span>
+              </div>
+            </div>
+
+            {/* Warning Message */}
+            <div className={`rounded-xl p-4 mb-6 ${isWriteOperation ? 'bg-amber-50 border border-amber-200' : 'bg-blue-50 border border-blue-200'}`}>
+              <div className="flex items-start gap-3">
+                <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isWriteOperation ? 'text-amber-600' : 'text-blue-600'}`} />
+                <div>
+                  <p className={`text-sm font-medium mb-1 ${isWriteOperation ? 'text-amber-800' : 'text-blue-800'}`}>
+                    {isWriteOperation ? 'This will modify data in the database!' : 'This will execute a query on the database'}
+                  </p>
+                  <p className={`text-sm ${isWriteOperation ? 'text-amber-700' : 'text-blue-700'}`}>
+                    {isWriteOperation 
+                      ? 'The query will immediately execute and change database records. This action cannot be undone.'
+                      : 'The query will be executed and results will be shown to the developer.'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Query Preview */}
+            <div className="mb-6">
+              <label className="text-sm font-medium text-slate-700 mb-2 block">Query:</label>
+              <div className="bg-slate-900 rounded-lg p-3 max-h-32 overflow-y-auto">
+                <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap break-words">
+                  {request.query}
+                </pre>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <button
+                onClick={() => setShowApproveModal(false)}
+                disabled={actionLoading}
+                className="btn-secondary flex-1"
+              >
+                Check Request Again
+              </button>
+              <button
+                onClick={handleApprove}
+                disabled={actionLoading}
+                className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                  isWriteOperation 
+                    ? 'bg-amber-600 hover:bg-amber-700 text-white' 
+                    : 'bg-primary-600 hover:bg-primary-700 text-white'
+                }`}
+              >
+                {actionLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Executing...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    Approve & Execute
+                  </>
+                )}
               </button>
             </div>
           </div>

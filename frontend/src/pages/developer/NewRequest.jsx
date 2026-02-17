@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { requestApi, userApi, dbInstanceApi } from '../../services/api';
 import QueryEditor from '../../components/QueryEditor';
@@ -9,9 +9,11 @@ import toast from 'react-hot-toast';
 const NewRequest = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [dbInstances, setDbInstances] = useState([]);
   const [teamLeads, setTeamLeads] = useState([]);
+  const [cloneDataApplied, setCloneDataApplied] = useState(false);
 
   const [formData, setFormData] = useState({
     dbInstanceId: '',
@@ -24,6 +26,46 @@ const NewRequest = () => {
     fetchFormData();
   }, []);
 
+  // Apply clone data after DB instances and team leads are loaded
+  useEffect(() => {
+    if (!cloneDataApplied && dbInstances.length > 0 && teamLeads.length > 0) {
+      const cloneData = location.state?.cloneData;
+      
+      if (cloneData) {
+        console.log('Applying clone data:', cloneData);
+        console.log('Available DB instances:', dbInstances.map(db => db._id));
+        console.log('Available team leads:', teamLeads.map(lead => lead._id));
+        
+        // Get the team lead ID - use clone data if available, otherwise fall back to user's default
+        const teamLeadId = cloneData.teamLeadId || user?.teamLeadId?._id || user?.teamLeadId || '';
+        
+        // Pre-fill form with cloned data AFTER API data is loaded
+        setFormData({
+          dbInstanceId: cloneData.dbInstanceId || '',
+          query: cloneData.query || formData.query,
+          reason: cloneData.reason || '',
+          teamLeadId: teamLeadId,
+        });
+        
+        console.log('Form data set to:', {
+          dbInstanceId: cloneData.dbInstanceId,
+          teamLeadId: teamLeadId,
+        });
+        
+        setCloneDataApplied(true);
+        
+        // Clear the location state to prevent re-filling on refresh
+        window.history.replaceState({}, document.title);
+      } else if (user?.teamLeadId && !cloneDataApplied) {
+        // Set default team lead if user has one assigned
+        const defaultTeamLeadId = user.teamLeadId._id || user.teamLeadId;
+        console.log('Setting default team lead:', defaultTeamLeadId);
+        setFormData(prev => ({ ...prev, teamLeadId: defaultTeamLeadId }));
+        setCloneDataApplied(true);
+      }
+    }
+  }, [dbInstances, teamLeads, cloneDataApplied, location.state, user]);
+
   const fetchFormData = async () => {
     try {
       const [dbRes, leadsRes] = await Promise.all([
@@ -33,11 +75,6 @@ const NewRequest = () => {
       console.log('DB Instances loaded:', dbRes.data);
       setDbInstances(dbRes.data);
       setTeamLeads(leadsRes.data);
-
-      // Set default team lead if user has one assigned
-      if (user?.teamLeadId) {
-        setFormData(prev => ({ ...prev, teamLeadId: user.teamLeadId._id || user.teamLeadId }));
-      }
     } catch (error) {
       console.error('Failed to load form data:', error);
       toast.error('Failed to load form data');
@@ -72,9 +109,14 @@ const NewRequest = () => {
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-800">New Query Request</h1>
+        <h1 className="text-3xl font-bold text-slate-800">
+          {location.state?.cloneData ? 'Clone Query Request' : 'New Query Request'}
+        </h1>
         <p className="text-slate-500 mt-1">
-          Submit a query for team lead approval
+          {location.state?.cloneData 
+            ? 'Create a new request based on a previous one' 
+            : 'Submit a query for team lead approval'
+          }
         </p>
       </div>
 
