@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { encrypt, decrypt } from '../config/encryption.js';
 
 const dbInstanceSchema = new mongoose.Schema(
   {
@@ -33,20 +32,9 @@ const dbInstanceSchema = new mongoose.Schema(
   }
 );
 
-// Encrypt connection string before saving
-dbInstanceSchema.pre('save', function (next) {
-  if (this.isModified('connectionString')) {
-    // Only encrypt if not already encrypted (check for typical MongoDB URI format)
-    if (this.connectionString.startsWith('mongodb')) {
-      this.connectionString = encrypt(this.connectionString);
-    }
-  }
-  next();
-});
-
-// Method to get decrypted connection string
+// Method to get connection string (no encryption)
 dbInstanceSchema.methods.getConnectionString = function () {
-  return decrypt(this.connectionString);
+  return this.connectionString;
 };
 
 // Virtual to hide connection string in JSON responses
