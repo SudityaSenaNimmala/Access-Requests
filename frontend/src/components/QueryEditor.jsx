@@ -19,13 +19,14 @@ const QueryEditor = ({ value, onChange, readOnly = false, height = '200px', lang
           readOnly,
           minimap: { enabled: false },
           fontSize: 14,
-          fontFamily: 'JetBrains Mono, Fira Code, monospace',
+          fontFamily: 'Consolas, "Courier New", monospace',
           lineNumbers: 'on',
           scrollBeyondLastLine: false,
           automaticLayout: true,
           tabSize: 2,
           wordWrap: 'on',
           padding: { top: 12, bottom: 12 },
+          fontLigatures: false,
         }}
       />
     </div>
