@@ -92,11 +92,16 @@ export const createRequest = async (req, res) => {
 // Get requests for developer
 export const getDeveloperRequests = async (req, res) => {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
+    const { status, page = 1, limit = 20, dateFrom, dateTo, dbInstanceId, collectionName } = req.query;
     
     const query = { developerId: req.user._id };
-    if (status) {
-      query.status = status;
+    if (status) query.status = status;
+    if (dbInstanceId) query.dbInstanceId = dbInstanceId;
+    if (collectionName) query.collectionName = { $regex: collectionName, $options: 'i' };
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) query.createdAt.$lte = new Date(new Date(dateTo).setHours(23, 59, 59, 999));
     }
 
     const requests = await Request.find(query)
@@ -125,11 +130,17 @@ export const getDeveloperRequests = async (req, res) => {
 // Get requests for team lead
 export const getTeamLeadRequests = async (req, res) => {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
+    const { status, page = 1, limit = 20, dateFrom, dateTo, dbInstanceId, collectionName, developerName } = req.query;
     
     const query = { teamLeadId: req.user._id };
-    if (status) {
-      query.status = status;
+    if (status) query.status = status;
+    if (dbInstanceId) query.dbInstanceId = dbInstanceId;
+    if (collectionName) query.collectionName = { $regex: collectionName, $options: 'i' };
+    if (developerName) query.developerName = { $regex: developerName, $options: 'i' };
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) query.createdAt.$lte = new Date(new Date(dateTo).setHours(23, 59, 59, 999));
     }
 
     const requests = await Request.find(query)
@@ -294,11 +305,18 @@ export const rejectRequest = async (req, res) => {
 // Get all requests (admin only)
 export const getAllRequests = async (req, res) => {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
+    const { status, page = 1, limit = 20, dateFrom, dateTo, dbInstanceId, collectionName, developerName, teamLeadName } = req.query;
     
     const query = {};
-    if (status) {
-      query.status = status;
+    if (status) query.status = status;
+    if (dbInstanceId) query.dbInstanceId = dbInstanceId;
+    if (collectionName) query.collectionName = { $regex: collectionName, $options: 'i' };
+    if (developerName) query.developerName = { $regex: developerName, $options: 'i' };
+    if (teamLeadName) query.teamLeadName = { $regex: teamLeadName, $options: 'i' };
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) query.createdAt.$lte = new Date(new Date(dateTo).setHours(23, 59, 59, 999));
     }
 
     const requests = await Request.find(query)
@@ -412,6 +430,60 @@ export const resubmitRequest = async (req, res) => {
     res.json(request);
   } catch (error) {
     console.error('Resubmit request error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get unique filter options for developer (collections from their own requests)
+export const getDeveloperFilterOptions = async (req, res) => {
+  try {
+    const baseQuery = { developerId: req.user._id };
+
+    const collections = await Request.distinct('collectionName', {
+      ...baseQuery,
+      collectionName: { $ne: 'unknown' }
+    });
+
+    res.json({ collections: collections.filter(Boolean).sort() });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get unique filter options for team lead (collections + developers from their team requests)
+export const getTeamLeadFilterOptions = async (req, res) => {
+  try {
+    const baseQuery = { teamLeadId: req.user._id };
+
+    const [collections, developers] = await Promise.all([
+      Request.distinct('collectionName', { ...baseQuery, collectionName: { $ne: 'unknown' } }),
+      Request.distinct('developerName', baseQuery),
+    ]);
+
+    res.json({
+      collections: collections.filter(Boolean).sort(),
+      developers: developers.filter(Boolean).sort(),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get unique filter options for admin (all collections + developers + team leads)
+export const getAdminFilterOptions = async (req, res) => {
+  try {
+    const [collections, developers, teamLeads] = await Promise.all([
+      Request.distinct('collectionName', { collectionName: { $ne: 'unknown' } }),
+      Request.distinct('developerName', {}),
+      Request.distinct('teamLeadName', {}),
+    ]);
+
+    res.json({
+      collections: collections.filter(Boolean).sort(),
+      developers: developers.filter(Boolean).sort(),
+      teamLeads: teamLeads.filter(Boolean).sort(),
+    });
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };

@@ -34,6 +34,9 @@ export const requestApi = {
   approve: (id, comment) => api.post(`/requests/${id}/approve`, { comment }),
   reject: (id, comment) => api.post(`/requests/${id}/reject`, { comment }),
   resubmit: (id, query) => api.post(`/requests/${id}/resubmit`, { query }),
+  getDeveloperFilterOptions: () => api.get('/requests/filter-options/developer'),
+  getTeamLeadFilterOptions: () => api.get('/requests/filter-options/team-lead'),
+  getAdminFilterOptions: () => api.get('/requests/filter-options/admin'),
 };
 
 // User API calls

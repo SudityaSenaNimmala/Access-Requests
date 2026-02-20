@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { requestApi } from '../../services/api';
+import { requestApi, dbInstanceApi } from '../../services/api';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import { FileText, Filter, Clock, Database, User, ArrowRight } from 'lucide-react';
+import { FileText, Filter, Clock, Database, User, ArrowRight, X } from 'lucide-react';
 
 const TeamRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('pending');
+  const [dbInstances, setDbInstances] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [developers, setDevelopers] = useState([]);
+  const [filters, setFilters] = useState({
+    status: 'pending',
+    dbInstanceId: '',
+    collectionName: '',
+    developerName: '',
+    dateFrom: '',
+    dateTo: '',
+  });
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -17,19 +27,27 @@ const TeamRequests = () => {
   });
 
   useEffect(() => {
+    dbInstanceApi.getAll({ activeOnly: 'true' }).then(res => setDbInstances(res.data)).catch(() => {});
+    requestApi.getTeamLeadFilterOptions().then(res => {
+      setCollections(res.data.collections || []);
+      setDevelopers(res.data.developers || []);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     fetchRequests();
-  }, [filter, pagination.page]);
+  }, [filters, pagination.page]);
 
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit,
-      };
-      if (filter !== 'all') {
-        params.status = filter;
-      }
+      const params = { page: pagination.page, limit: pagination.limit };
+      if (filters.status !== 'all') params.status = filters.status;
+      if (filters.dbInstanceId) params.dbInstanceId = filters.dbInstanceId;
+      if (filters.collectionName) params.collectionName = filters.collectionName;
+      if (filters.developerName) params.developerName = filters.developerName;
+      if (filters.dateFrom) params.dateFrom = filters.dateFrom;
+      if (filters.dateTo) params.dateTo = filters.dateTo;
 
       const response = await requestApi.getTeamRequests(params);
       setRequests(response.data.requests);
@@ -41,18 +59,27 @@ const TeamRequests = () => {
     }
   };
 
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const clearFilters = () => {
+    setFilters({ status: 'pending', dbInstanceId: '', collectionName: '', developerName: '', dateFrom: '', dateTo: '' });
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const hasActiveFilters = filters.status !== 'pending' || filters.dbInstanceId || filters.collectionName || filters.developerName || filters.dateFrom || filters.dateTo;
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   };
 
-  const filters = [
+  const statusOptions = [
     { value: 'pending', label: 'Pending' },
-    { value: 'all', label: 'All' },
+    { value: 'all', label: 'All Status' },
     { value: 'approved', label: 'Approved' },
     { value: 'executed', label: 'Executed' },
     { value: 'failed', label: 'Failed' },
@@ -61,29 +88,80 @@ const TeamRequests = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800">Team Requests</h1>
           <p className="text-slate-500 mt-1">Review and approve query requests from your team</p>
         </div>
+        {hasActiveFilters && (
+          <button onClick={clearFilters} className="flex items-center gap-2 text-sm text-red-500 hover:text-red-600">
+            <X className="w-4 h-4" /> Clear Filters
+          </button>
+        )}
+      </div>
 
-        {/* Filter */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-slate-500" />
+      {/* Filters */}
+      <div className="card mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Filter className="w-4 h-4 text-primary-500" />
+          <span className="text-sm font-medium text-slate-700">Filters</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
           <select
-            value={filter}
-            onChange={(e) => {
-              setFilter(e.target.value);
-              setPagination(prev => ({ ...prev, page: 1 }));
-            }}
-            className="select py-2 px-3 text-sm"
+            value={filters.status}
+            onChange={(e) => handleFilterChange('status', e.target.value)}
+            className="select text-sm py-2"
           >
-            {filters.map((f) => (
-              <option key={f.value} value={f.value}>
-                {f.label}
-              </option>
+            {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+
+          <select
+            value={filters.dbInstanceId}
+            onChange={(e) => handleFilterChange('dbInstanceId', e.target.value)}
+            className="select text-sm py-2"
+          >
+            <option value="">All Databases</option>
+            {dbInstances.map(db => (
+              <option key={db._id} value={db._id}>{db.name}</option>
             ))}
           </select>
+
+          <select
+            value={filters.collectionName}
+            onChange={(e) => handleFilterChange('collectionName', e.target.value)}
+            className="select text-sm py-2"
+          >
+            <option value="">All Collections</option>
+            {collections.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <select
+            value={filters.developerName}
+            onChange={(e) => handleFilterChange('developerName', e.target.value)}
+            className="select text-sm py-2"
+          >
+            <option value="">All Developers</option>
+            {developers.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-slate-500">From</label>
+            <input
+              type="date"
+              value={filters.dateFrom}
+              onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+              className="input text-sm py-2"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-slate-500">To</label>
+            <input
+              type="date"
+              value={filters.dateTo}
+              onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+              className="input text-sm py-2"
+            />
+          </div>
         </div>
       </div>
 
@@ -127,11 +205,11 @@ const TeamRequests = () => {
                         <span>{request.developerName}</span>
                       </div>
                       {request.collectionName && request.collectionName !== 'unknown' && (
-                      <div className="flex items-center gap-1.5">
-                        <Database className="w-3.5 h-3.5" />
-                        <span>{request.collectionName}</span>
-                      </div>
-                    )}
+                        <div className="flex items-center gap-1.5">
+                          <Database className="w-3.5 h-3.5" />
+                          <span>{request.collectionName}</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5" />
                         <span>{formatDate(request.createdAt)}</span>
@@ -145,7 +223,6 @@ const TeamRequests = () => {
             ))}
           </div>
 
-          {/* Pagination */}
           {pagination.pages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8">
               <button
@@ -173,9 +250,7 @@ const TeamRequests = () => {
           <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
           <h3 className="text-xl font-medium text-slate-700 mb-2">No requests found</h3>
           <p className="text-slate-500">
-            {filter === 'pending'
-              ? 'No pending requests to review'
-              : `No ${filter} requests found`}
+            {hasActiveFilters ? 'No requests match your filters' : filters.status === 'pending' ? 'No pending requests to review' : `No ${filters.status} requests found`}
           </p>
         </div>
       )}
