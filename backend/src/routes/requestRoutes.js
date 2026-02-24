@@ -11,6 +11,8 @@ import {
   getDeveloperFilterOptions,
   getTeamLeadFilterOptions,
   getAdminFilterOptions,
+  markRequestAsSeen,
+  getDeveloperUnseenCounts,
 } from '../controllers/requestController.js';
 import { isAuthenticated, isTeamLeadOrAdmin, isAdmin } from '../middleware/auth.js';
 
@@ -20,7 +22,9 @@ const router = express.Router();
 router.post('/', isAuthenticated, createRequest);
 router.get('/my-requests', isAuthenticated, getDeveloperRequests);
 router.get('/filter-options/developer', isAuthenticated, getDeveloperFilterOptions);
+router.get('/unseen-counts', isAuthenticated, getDeveloperUnseenCounts);
 router.post('/:id/resubmit', isAuthenticated, resubmitRequest);
+router.post('/:id/seen', isAuthenticated, markRequestAsSeen);
 
 // Team lead routes
 router.get('/team-requests', isAuthenticated, isTeamLeadOrAdmin, getTeamLeadRequests);

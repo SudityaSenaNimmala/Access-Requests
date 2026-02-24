@@ -230,6 +230,7 @@ export const approveRequest = async (req, res) => {
       request.status = 'failed';
       request.error = executionResult.error;
     }
+    request.seenByDeveloper = false; // Mark as unseen so developer gets notified
     await request.save();
 
     // Get developer for notification
@@ -281,6 +282,7 @@ export const rejectRequest = async (req, res) => {
     request.status = 'rejected';
     request.reviewComment = comment;
     request.reviewedAt = new Date();
+    request.seenByDeveloper = false; // Mark as unseen so developer gets notified
     await request.save();
 
     // Get developer for notification
@@ -464,6 +466,46 @@ export const getTeamLeadFilterOptions = async (req, res) => {
       collections: collections.filter(Boolean).sort(),
       developers: developers.filter(Boolean).sort(),
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Mark a request as seen by developer
+export const markRequestAsSeen = async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: 'Request not found' });
+
+    // Only the developer who owns the request can mark it as seen
+    if (request.developerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    request.seenByDeveloper = true;
+    await request.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get unseen reviewed request counts for developer (for sidebar badges)
+export const getDeveloperUnseenCounts = async (req, res) => {
+  try {
+    const baseQuery = {
+      developerId: req.user._id,
+      seenByDeveloper: { $ne: true }, // matches false AND missing/undefined (old records)
+    };
+
+    const [executed, rejected, failed] = await Promise.all([
+      Request.countDocuments({ ...baseQuery, status: { $in: ['executed', 'approved'] } }),
+      Request.countDocuments({ ...baseQuery, status: 'rejected' }),
+      Request.countDocuments({ ...baseQuery, status: 'failed' }),
+    ]);
+
+    res.json({ executed, rejected, failed });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Clock, Database, User, ArrowRight, Copy } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 
-const RequestCard = ({ request, showDeveloper = false, linkTo, showCloneButton = false }) => {
+const RequestCard = ({ request, showDeveloper = false, linkTo, showCloneButton = false, showUnseenDot = false }) => {
   const navigate = useNavigate();
   
   const formatDate = (date) => {
@@ -28,11 +28,17 @@ const RequestCard = ({ request, showDeveloper = false, linkTo, showCloneButton =
     navigate('/developer/new-request', { state: { cloneData } });
   };
 
+  const isUnseen = showUnseenDot && !request.seenByDeveloper &&
+    ['executed', 'approved', 'rejected', 'failed'].includes(request.status);
+
   return (
     <Link
       to={linkTo || `/developer/requests/${request._id}`}
-      className="block bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-primary-300 hover:shadow-md transition-all duration-300 group"
+      className="block bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-primary-300 hover:shadow-md transition-all duration-300 group relative"
     >
+      {isUnseen && (
+        <span className="absolute top-4 right-4 w-2.5 h-2.5 bg-red-500 rounded-full" title="New update" />
+      )}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-3">

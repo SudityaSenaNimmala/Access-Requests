@@ -35,8 +35,13 @@ const RequestDetail = () => {
   const fetchRequest = async () => {
     try {
       const response = await requestApi.getById(id);
-      setRequest(response.data);
-      setEditedQuery(response.data.query);
+      const req = response.data;
+      setRequest(req);
+      setEditedQuery(req.query);
+      // Mark as seen if it's a reviewed request that hasn't been seen yet
+      if (!req.seenByDeveloper && ['executed', 'approved', 'rejected', 'failed'].includes(req.status)) {
+        requestApi.markAsSeen(id).catch(() => {});
+      }
     } catch (err) {
       console.error('Fetch request error:', err);
     } finally {

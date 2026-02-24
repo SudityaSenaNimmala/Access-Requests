@@ -37,6 +37,8 @@ export const requestApi = {
   getDeveloperFilterOptions: () => api.get('/requests/filter-options/developer'),
   getTeamLeadFilterOptions: () => api.get('/requests/filter-options/team-lead'),
   getAdminFilterOptions: () => api.get('/requests/filter-options/admin'),
+  getUnseenCounts: () => api.get('/requests/unseen-counts'),
+  markAsSeen: (id) => api.post(`/requests/${id}/seen`),
 };
 
 // User API calls

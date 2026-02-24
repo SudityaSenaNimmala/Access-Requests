@@ -14,20 +14,71 @@ import {
   Wifi,
   WifiOff,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { requestApi } from '../services/api';
 
 const Layout = ({ children }) => {
   const { user, logout, isAdmin, isTeamLead } = useAuth();
-  const { connected } = useSocket();
+  const { connected, socket } = useSocket();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [unseenCounts, setUnseenCounts] = useState({ executed: 0, rejected: 0, failed: 0 });
+
+  // Fetch pending count for team leads
+  useEffect(() => {
+    if (isTeamLead() && !isAdmin()) {
+      fetchPendingCount();
+    }
+  }, [location.pathname]);
+
+  // Fetch unseen counts for developers on every route change
+  useEffect(() => {
+    fetchUnseenCounts();
+  }, [location.pathname]);
+
+  // Update counts via socket
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('new_request', () => {
+      if (isTeamLead() && !isAdmin()) fetchPendingCount();
+    });
+    socket.on('request_updated', () => {
+      if (isTeamLead() && !isAdmin()) fetchPendingCount();
+      fetchUnseenCounts();
+    });
+    return () => {
+      socket.off('new_request');
+      socket.off('request_updated');
+    };
+  }, [socket]);
+
+  const fetchPendingCount = async () => {
+    try {
+      const res = await requestApi.getTeamRequests({ status: 'pending', limit: 1 });
+      setPendingCount(res.data.pagination?.total || 0);
+    } catch (e) {}
+  };
+
+  const fetchUnseenCounts = async () => {
+    try {
+      const res = await requestApi.getUnseenCounts();
+      setUnseenCounts(res.data);
+    } catch (e) {}
+  };
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home, show: true },
     { name: 'New Request', href: '/developer/new-request', icon: FileText, show: !isAdmin() },
-    { name: 'My Requests', href: '/developer/requests', icon: Database, show: !isAdmin() },
-    { name: 'Team Requests', href: '/lead/requests', icon: CheckSquare, show: isTeamLead() && !isAdmin() },
+    {
+      name: 'My Requests',
+      href: '/developer/requests',
+      icon: Database,
+      show: !isAdmin(),
+      unseenBadges: unseenCounts,
+    },
+    { name: 'Team Requests', href: '/lead/requests', icon: CheckSquare, show: isTeamLead() && !isAdmin(), badge: pendingCount },
     { name: 'All Requests', href: '/admin/requests', icon: FileText, show: isAdmin() },
     { name: 'Users', href: '/admin/users', icon: Users, show: isAdmin() },
     { name: 'DB Instances', href: '/admin/db-instances', icon: Settings, show: isAdmin() },
@@ -58,6 +109,7 @@ const Layout = ({ children }) => {
           <nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.filter(item => item.show).map((item) => {
               const Icon = item.icon;
+              const ub = item.unseenBadges;
               return (
                 <Link
                   key={item.name}
@@ -69,7 +121,31 @@ const Layout = ({ children }) => {
                   }`}
                 >
                   <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.name}</span>
+                  <span className="font-medium flex-1">{item.name}</span>
+                  {ub && (
+                    <span className="flex items-center gap-1">
+                      {ub.executed > 0 && (
+                        <span className="min-w-[20px] h-5 px-1.5 bg-emerald-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                          {ub.executed > 99 ? '99+' : ub.executed}
+                        </span>
+                      )}
+                      {ub.rejected > 0 && (
+                        <span className="min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                          {ub.rejected > 99 ? '99+' : ub.rejected}
+                        </span>
+                      )}
+                      {ub.failed > 0 && (
+                        <span className="min-w-[20px] h-5 px-1.5 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                          {ub.failed > 99 ? '99+' : ub.failed}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                  {item.badge > 0 && (
+                    <span className="min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -145,6 +221,7 @@ const Layout = ({ children }) => {
             <nav className="space-y-2">
               {navigation.filter(item => item.show).map((item) => {
                 const Icon = item.icon;
+                const ub = item.unseenBadges;
                 return (
                   <Link
                     key={item.name}
@@ -157,7 +234,31 @@ const Layout = ({ children }) => {
                     }`}
                   >
                     <Icon className="w-5 h-5" />
-                    <span>{item.name}</span>
+                    <span className="flex-1">{item.name}</span>
+                    {ub && (
+                      <span className="flex items-center gap-1">
+                        {ub.executed > 0 && (
+                          <span className="min-w-[20px] h-5 px-1.5 bg-emerald-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            {ub.executed > 99 ? '99+' : ub.executed}
+                          </span>
+                        )}
+                        {ub.rejected > 0 && (
+                          <span className="min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            {ub.rejected > 99 ? '99+' : ub.rejected}
+                          </span>
+                        )}
+                        {ub.failed > 0 && (
+                          <span className="min-w-[20px] h-5 px-1.5 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            {ub.failed > 99 ? '99+' : ub.failed}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                    {item.badge > 0 && (
+                      <span className="min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                        {item.badge > 99 ? '99+' : item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}

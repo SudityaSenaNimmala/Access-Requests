@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { requestApi, dbInstanceApi } from '../../services/api';
 import RequestCard from '../../components/RequestCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { FileText, Filter, X } from 'lucide-react';
 
 const MyRequests = () => {
+  const location = useLocation();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dbInstances, setDbInstances] = useState([]);
@@ -31,9 +33,10 @@ const MyRequests = () => {
     }).catch((err) => console.error('Filter options error:', err));
   }, []);
 
+  // Re-fetch when returning to this page (e.g. after viewing a request detail)
   useEffect(() => {
     fetchRequests();
-  }, [filters, pagination.page]);
+  }, [filters, pagination.page, location.key]);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -152,7 +155,7 @@ const MyRequests = () => {
         <>
           <div className="grid gap-4">
             {requests.map((request) => (
-              <RequestCard key={request._id} request={request} showCloneButton={true} />
+              <RequestCard key={request._id} request={request} showCloneButton={true} showUnseenDot={true} />
             ))}
           </div>
 
