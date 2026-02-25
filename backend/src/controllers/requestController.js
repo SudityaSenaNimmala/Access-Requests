@@ -76,9 +76,14 @@ export const createRequest = async (req, res) => {
     const io = req.app.get('io');
     if (io) {
       io.to(`user_${teamLeadId}`).emit('new_request', {
-        requestId: request._id,
-        developerName: req.user.name,
-        dbInstanceName: dbInstance.name,
+        request: {
+          _id: request._id,
+          developerName: req.user.name,
+          dbInstanceName: dbInstance.name,
+          query: request.query,
+          reason: request.reason,
+          status: request.status,
+        }
       });
     }
 
@@ -92,16 +97,26 @@ export const createRequest = async (req, res) => {
 // Get requests for developer
 export const getDeveloperRequests = async (req, res) => {
   try {
-    const { status, page = 1, limit = 20, dateFrom, dateTo, dbInstanceId, collectionName } = req.query;
+    const { status, page = 1, limit = 20, dateFrom, dateTo, dbInstanceId, collectionName, unseenOnly } = req.query;
     
     const query = { developerId: req.user._id };
-    if (status) query.status = status;
     if (dbInstanceId) query.dbInstanceId = dbInstanceId;
     if (collectionName) query.collectionName = { $regex: collectionName, $options: 'i' };
     if (dateFrom || dateTo) {
       query.createdAt = {};
       if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
       if (dateTo) query.createdAt.$lte = new Date(new Date(dateTo).setHours(23, 59, 59, 999));
+    }
+    if (unseenOnly === 'true') {
+      query.seenByDeveloper = { $ne: true };
+      // Only restrict to reviewed statuses if no specific status filter is applied
+      if (!status) {
+        query.status = { $in: ['executed', 'approved', 'rejected', 'failed'] };
+      } else {
+        query.status = status;
+      }
+    } else if (status) {
+      query.status = status;
     }
 
     const requests = await Request.find(query)
@@ -246,10 +261,18 @@ export const approveRequest = async (req, res) => {
     // Emit socket event
     const io = req.app.get('io');
     if (io) {
+      const populatedRequest = await Request.findById(request._id)
+        .populate('dbInstanceId', 'name')
+        .populate('teamLeadId', 'name');
+      
       io.to(`user_${request.developerId}`).emit('request_updated', {
-        requestId: request._id,
-        status: request.status,
-        hasResult: request.status === 'executed',
+        request: {
+          _id: populatedRequest._id,
+          status: populatedRequest.status,
+          dbInstanceName: populatedRequest.dbInstanceId?.name,
+          developerId: populatedRequest.developerId,
+          reviewComment: populatedRequest.reviewComment,
+        }
       });
     }
 
@@ -292,9 +315,18 @@ export const rejectRequest = async (req, res) => {
     // Emit socket event
     const io = req.app.get('io');
     if (io) {
+      const populatedRequest = await Request.findById(request._id)
+        .populate('dbInstanceId', 'name')
+        .populate('teamLeadId', 'name');
+      
       io.to(`user_${request.developerId}`).emit('request_updated', {
-        requestId: request._id,
-        status: 'rejected',
+        request: {
+          _id: populatedRequest._id,
+          status: populatedRequest.status,
+          dbInstanceName: populatedRequest.dbInstanceId?.name,
+          developerId: populatedRequest.developerId,
+          reviewComment: populatedRequest.reviewComment,
+        }
       });
     }
 
@@ -421,10 +453,18 @@ export const resubmitRequest = async (req, res) => {
     // Emit socket event for real-time update
     const io = req.app.get('io');
     if (io) {
+      const populatedRequest = await Request.findById(request._id)
+        .populate('dbInstanceId', 'name');
+      
       io.to(`user_${request.teamLeadId}`).emit('new_request', {
-        requestId: request._id,
-        developerName: req.user.name,
-        dbInstanceName: request.dbInstanceName,
+        request: {
+          _id: populatedRequest._id,
+          developerName: req.user.name,
+          dbInstanceName: populatedRequest.dbInstanceId?.name,
+          query: populatedRequest.query,
+          reason: populatedRequest.reason,
+          status: populatedRequest.status,
+        },
         isResubmission: true,
       });
     }

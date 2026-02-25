@@ -17,6 +17,7 @@ const MyRequests = () => {
     collectionName: '',
     dateFrom: '',
     dateTo: '',
+    unseenOnly: false,
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -47,6 +48,7 @@ const MyRequests = () => {
       if (filters.collectionName) params.collectionName = filters.collectionName;
       if (filters.dateFrom) params.dateFrom = filters.dateFrom;
       if (filters.dateTo) params.dateTo = filters.dateTo;
+      if (filters.unseenOnly) params.unseenOnly = true;
 
       const response = await requestApi.getMyRequests(params);
       setRequests(response.data.requests);
@@ -64,11 +66,11 @@ const MyRequests = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ status: 'all', dbInstanceId: '', collectionName: '', dateFrom: '', dateTo: '' });
+    setFilters({ status: 'all', dbInstanceId: '', collectionName: '', dateFrom: '', dateTo: '', unseenOnly: false });
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
-  const hasActiveFilters = filters.status !== 'all' || filters.dbInstanceId || filters.collectionName || filters.dateFrom || filters.dateTo;
+  const hasActiveFilters = filters.status !== 'all' || filters.dbInstanceId || filters.collectionName || filters.dateFrom || filters.dateTo || filters.unseenOnly;
 
   const statusOptions = [
     { value: 'all', label: 'All Status' },
@@ -94,9 +96,22 @@ const MyRequests = () => {
 
       {/* Filters */}
       <div className="card mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Filter className="w-4 h-4 text-primary-500" />
-          <span className="text-sm font-medium text-slate-700">Filters</span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-primary-500" />
+            <span className="text-sm font-medium text-slate-700">Filters</span>
+          </div>
+          <button
+            onClick={() => handleFilterChange('unseenOnly', !filters.unseenOnly)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+              filters.unseenOnly
+                ? 'bg-red-500 border-red-500 text-white'
+                : 'bg-white border-slate-300 text-slate-500 hover:border-red-400 hover:text-red-500'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${filters.unseenOnly ? 'bg-white' : 'bg-red-400'}`} />
+            Unseen Only
+          </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <select

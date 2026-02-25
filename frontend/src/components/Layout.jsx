@@ -13,9 +13,12 @@ import {
   X,
   Wifi,
   WifiOff,
+  Bell,
+  BellOff,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { requestApi } from '../services/api';
+import notificationService from '../services/notificationService';
 
 const Layout = ({ children }) => {
   const { user, logout, isAdmin, isTeamLead } = useAuth();
@@ -25,6 +28,20 @@ const Layout = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [unseenCounts, setUnseenCounts] = useState({ executed: 0, rejected: 0, failed: 0 });
+  const [notificationsEnabled, setNotificationsEnabled] = useState(notificationService.isEnabled());
+
+  // Request notification permission on mount if not already granted
+  useEffect(() => {
+    if (notificationService.permission === 'default' && notificationService.enabled) {
+      // Auto-request permission after a short delay
+      const timer = setTimeout(() => {
+        notificationService.requestPermission().then(granted => {
+          setNotificationsEnabled(notificationService.isEnabled());
+        });
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Fetch pending count for team leads
   useEffect(() => {
@@ -38,21 +55,42 @@ const Layout = ({ children }) => {
     fetchUnseenCounts();
   }, [location.pathname]);
 
-  // Update counts via socket
+  // Update counts via socket and trigger notifications
   useEffect(() => {
     if (!socket) return;
-    socket.on('new_request', () => {
-      if (isTeamLead() && !isAdmin()) fetchPendingCount();
+    
+    socket.on('new_request', (data) => {
+      if (isTeamLead() && !isAdmin()) {
+        fetchPendingCount();
+        // Notify team lead of new request
+        if (data?.request && notificationsEnabled) {
+          notificationService.notifyNewRequest(data.request);
+        }
+      }
     });
-    socket.on('request_updated', () => {
+    
+    socket.on('request_updated', (data) => {
       if (isTeamLead() && !isAdmin()) fetchPendingCount();
       fetchUnseenCounts();
+      
+      // Notify developer of status change
+      if (data?.request && data.request.developerId === user?._id && notificationsEnabled) {
+        const status = data.request.status;
+        if (status === 'executed' || status === 'approved') {
+          notificationService.notifyRequestApproved(data.request);
+        } else if (status === 'rejected') {
+          notificationService.notifyRequestRejected(data.request);
+        } else if (status === 'failed') {
+          notificationService.notifyRequestFailed(data.request);
+        }
+      }
     });
+    
     return () => {
       socket.off('new_request');
       socket.off('request_updated');
     };
-  }, [socket]);
+  }, [socket, notificationsEnabled, user]);
 
   const fetchPendingCount = async () => {
     try {
@@ -67,6 +105,13 @@ const Layout = ({ children }) => {
       setUnseenCounts(res.data);
     } catch (e) {}
   };
+
+  // Update browser tab title with total notification count
+  useEffect(() => {
+    const unseenTotal = (unseenCounts.executed || 0) + (unseenCounts.rejected || 0) + (unseenCounts.failed || 0);
+    const total = unseenTotal + (pendingCount || 0);
+    document.title = total > 0 ? `(${total > 99 ? '99+' : total}) DB Access` : 'DB Access';
+  }, [unseenCounts, pendingCount]);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home, show: true },
@@ -180,19 +225,76 @@ const Layout = ({ children }) => {
               </button>
             </div>
             
-            {/* Connection status */}
-            <div className="flex items-center gap-2 px-4 mt-3 text-xs">
-              {connected ? (
-                <>
-                  <Wifi className="w-3 h-3 text-emerald-500" />
-                  <span className="text-emerald-600">Connected</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff className="w-3 h-3 text-slate-400" />
-                  <span className="text-slate-400">Disconnected</span>
-                </>
-              )}
+            {/* Connection and Notifications status */}
+            <div className="flex items-center justify-between px-4 mt-3 text-xs relative">
+              <div className="flex items-center gap-2">
+                {connected ? (
+                  <>
+                    <Wifi className="w-3 h-3 text-emerald-500" />
+                    <span className="text-emerald-600">Connected</span>
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="w-3 h-3 text-slate-400" />
+                    <span className="text-slate-400">Disconnected</span>
+                  </>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  // If permission not granted yet, request it
+                  if (notificationService.permission !== 'granted') {
+                    const granted = await notificationService.requestPermission();
+                    if (granted) {
+                      notificationService.enabled = true;
+                      localStorage.setItem('notificationsEnabled', 'true');
+                    }
+                    setNotificationsEnabled(notificationService.isEnabled());
+                  } else {
+                    // Toggle on/off
+                    const newState = notificationService.toggle();
+                    setNotificationsEnabled(newState);
+                  }
+                }}
+                className="relative p-1.5 cursor-pointer bg-transparent border-0"
+                title={
+                  notificationService.permission !== 'granted' 
+                    ? 'Click to enable notifications' 
+                    : notificationsEnabled 
+                      ? 'Click to disable notifications' 
+                      : 'Click to enable notifications'
+                }
+              >
+                {notificationsEnabled ? (
+                  <Bell 
+                    className="w-4 h-4 text-emerald-500 transition-all duration-300" 
+                    style={{ filter: 'none' }}
+                    onMouseEnter={(e) => {
+                      // Show red glow when enabled (will disable on click)
+                      e.currentTarget.style.filter = 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.6)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.3)) drop-shadow(0 0 18px rgba(239, 68, 68, 0.15))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'none';
+                    }}
+                  />
+                ) : (
+                  <BellOff 
+                    className="w-4 h-4 text-slate-400 transition-all duration-300" 
+                    style={{ filter: 'none' }}
+                    onMouseEnter={(e) => {
+                      // Show green glow when disabled (will enable on click)
+                      e.currentTarget.style.filter = 'drop-shadow(0 0 5px rgba(16, 185, 129, 0.6)) drop-shadow(0 0 12px rgba(16, 185, 129, 0.3)) drop-shadow(0 0 18px rgba(16, 185, 129, 0.15))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'none';
+                    }}
+                  />
+                )}
+              </button>
             </div>
           </div>
         </div>
